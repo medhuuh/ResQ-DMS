@@ -1,0 +1,97 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+@layer base {
+  :root {
+    --bg-background: #f3f4f6;
+    /* Gray 100 */
+    --bg-surface: #ffffff;
+    /* White */
+    --text-main: #111827;
+    /* Gray 900 */
+    --text-muted: #6b7280;
+    /* Gray 500 */
+    --border-color: #e5e7eb;
+    /* Gray 200 */
+    --primary: #65a30d;
+    /* Lime 600 */
+  }
+
+  .dark {
+    --bg-background: #121212;
+    --bg-surface: #064e3b;
+    /* Dark Green */
+    --text-main: #f3f4f6;
+    --text-muted: #9ca3af;
+    --border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  body {
+    background-color: var(--bg-background);
+    color: var(--text-main);
+    font-family: 'Outfit', sans-serif;
+    transition: background-color 0.3s, color 0.3s;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-surface/20 backdrop-blur-md border border-white/10;
+  }
+
+  .animate-scroll {
+    animation: scroll 20s linear infinite;
+  }
+
+  @keyframes scroll {
+    0% {
+      transform: translateX(0);
+    }
+
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .pause-on-hover:hover {
+    animation-play-state: paused;
+  }
+
+  .mask-linear-fade {
+    mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+  }
+
+  .animate-bounce-in {
+    animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  @keyframes bounceIn {
+    0% {
+      transform: scale(0.5);
+      opacity: 0;
+    }
+
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+}
+
+/* Custom Scrollbar for Sidebar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #374151;
+  /* gray-700 */
+  border-radius: 20px;
+}

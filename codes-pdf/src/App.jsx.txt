@@ -1,0 +1,70 @@
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import MainLayout from './components/layout/MainLayout';
+import LandingPage from './pages/public/LandingPage';
+import LoginPage from './pages/auth/LoginPage';
+import RegisterPage from './pages/auth/RegisterPage';
+import ForgotPassword from './pages/auth/ForgotPassword';
+import LiveDisasterStatus from './pages/public/LiveDisasterStatus';
+import SafeHomeSearch from './pages/public/SafeHomeSearch';
+import MissingPersonSearch from './pages/public/MissingPersonSearch';
+import Dashboard from './pages/admin/Dashboard';
+import DisasterAlerts from './pages/admin/DisasterAlerts';
+import RiskZoneMap from './pages/admin/RiskZoneMap';
+import CampList from './pages/camp/CampList';
+import CampForm from './pages/camp/CampForm';   // Assuming these will be created
+import CampOccupancy from './pages/camp/CampOccupancy';
+import SafeHomeList from './pages/safehome/SafeHomeList';
+import RefugeeList from './pages/refugee/RefugeeList';
+import RefugeeRegister from './pages/refugee/RefugeeRegister';
+import ResourceDashboard from './pages/resource/ResourceDashboard';
+import DonationPledge from './pages/resource/DonationPledge';
+import MissingList from './pages/missing/MissingList';
+import MissingRegister from './pages/missing/MissingRegister';
+import VolunteerDashboard from './pages/volunteer/VolunteerDashboard';
+import Analytics from './pages/admin/Analytics';
+import UserProfile from './pages/profile/UserProfile';
+
+// Placeholders removed as actual components are imported
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+
+        <Route path="/live-status" element={<LiveDisasterStatus />} />
+        <Route path="/safe-homes-public" element={<SafeHomeSearch />} />
+        <Route path="/missing-public" element={<MissingPersonSearch />} />
+        <Route path="/donate" element={<DonationPledge />} />
+
+        {/* Protected Admin/User Routes (wrapped in MainLayout) */}
+        <Route path="/" element={<MainLayout />}>
+          <Route path="admin/dashboard" element={<Dashboard />} />
+          <Route path="admin/alerts" element={<DisasterAlerts />} />
+          <Route path="admin/map" element={<RiskZoneMap />} />
+          <Route path="camps" element={<CampList />} />
+          <Route path="camps/new" element={<CampForm />} />
+          <Route path="camps/occupancy" element={<CampOccupancy />} />
+          <Route path="safe-homes" element={<SafeHomeList />} />
+          <Route path="refugees" element={<RefugeeList />} />
+          <Route path="refugees/register" element={<RefugeeRegister />} />
+          <Route path="resources" element={<ResourceDashboard />} />
+          <Route path="missing-persons" element={<MissingList />} />
+          <Route path="missing-persons/new" element={<MissingRegister />} />
+          <Route path="volunteers" element={<VolunteerDashboard />} />
+          <Route path="analytics" element={<Analytics />} />
+          <Route path="profile" element={<UserProfile />} />
+        </Route>
+
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;

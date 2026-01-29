@@ -1,0 +1,56 @@
+import React from 'react';
+import { MapPin, Info } from 'lucide-react';
+
+const RiskZoneMap = () => {
+    return (
+        <div className="p-6 h-[calc(100vh-80px)] flex flex-col">
+            <div className="flex justify-between items-center mb-6">
+                <div>
+                    <h2 className="text-3xl font-bold">Risk Zone Map</h2>
+                    <p className="text-gray-500">Geospatial view of vulnerable areas</p>
+                </div>
+                <div className="flex gap-2">
+                    <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold flex items-center gap-1"><span className="w-2 h-2 bg-red-500 rounded-full"></span> High Risk</span>
+                    <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-bold flex items-center gap-1"><span className="w-2 h-2 bg-yellow-500 rounded-full"></span> Moderate</span>
+                    <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold flex items-center gap-1"><span className="w-2 h-2 bg-green-500 rounded-full"></span> Safe Zone</span>
+                </div>
+            </div>
+
+            <div className="flex-1 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
+                {/* Map Placeholder */}
+                <div className="absolute inset-0 bg-slate-100 flex items-center justify-center">
+                    <div className="text-center text-gray-400">
+                        <MapPin className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                        <p className="font-medium text-lg">Interactive Google Map / OpenStreetMap</p>
+                        <p className="text-sm mt-2">API Integration Required</p>
+                    </div>
+                </div>
+
+                {/* Overlay Info Panel */}
+                <div className="absolute top-4 right-4 w-80 bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-lg border border-gray-200">
+                    <h4 className="font-bold flex items-center gap-2 mb-3">
+                        <Info className="w-4 h-4 text-indigo-500" /> Zone Details
+                    </h4>
+                    <div className="space-y-3">
+                        <div className="p-3 bg-red-50 rounded-lg border border-red-100">
+                            <div className="flex justify-between mb-1">
+                                <span className="font-bold text-red-800 text-sm">Flood Zone A</span>
+                                <span className="text-xs text-red-600 font-bold">Critical</span>
+                            </div>
+                            <p className="text-xs text-red-600">River water levels exceeding safe mark.</p>
+                        </div>
+                        <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-100">
+                            <div className="flex justify-between mb-1">
+                                <span className="font-bold text-yellow-800 text-sm">Landslide Zone B</span>
+                                <span className="text-xs text-yellow-600 font-bold">Warning</span>
+                            </div>
+                            <p className="text-xs text-yellow-600">Heavy rainfall predicted.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default RiskZoneMap;

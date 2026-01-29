@@ -1,0 +1,86 @@
+import React, { useState } from 'react';
+import { Home, MapPin, ChevronDown } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
+const SafeHomeSearch = () => {
+    const [selectedDistrict, setSelectedDistrict] = useState('');
+
+    const dummyHomes = [
+        { id: 1, name: 'Sree Vilas Community Hall', location: 'Meppadi, Wayanad', capacity: 150, available: 12 },
+        { id: 2, name: 'St. Marys High School', location: 'Vythiri, Wayanad', capacity: 200, available: 45 },
+        { id: 3, name: 'Govt. College Shelter', location: 'Mundakkai, Wayanad', capacity: 300, available: 120 },
+        { id: 4, name: 'Town Hall Relief Camp', location: 'Vilangad, Kozhikode', capacity: 100, available: 10 },
+        { id: 5, name: 'Hilltop Residency', location: 'Taliparamba, Kannur', capacity: 50, available: 5 },
+        { id: 6, name: 'Community Center', location: 'Nilambur, Malappuram', capacity: 80, available: 30 },
+        { id: 7, name: 'District Sports Complex', location: 'Kanhangad, Kasaragod', capacity: 500, available: 350 },
+    ];
+
+    const filteredHomes = selectedDistrict
+        ? dummyHomes.filter(home => home.location.toLowerCase().includes(selectedDistrict.toLowerCase()))
+        : dummyHomes;
+
+    return (
+        <div className="min-h-screen bg-background p-6">
+            <div className="max-w-6xl mx-auto">
+                <header className="mb-8 text-center">
+                    <h1 className="text-3xl font-bold text-white">Find Safe Havens</h1>
+                    <p className="text-gray-400 mt-2">Search for available shelters near affected areas</p>
+                </header>
+
+                <div className="bg-surface p-2 rounded-2xl shadow-sm mb-8 max-w-md mx-auto border border-white/10 relative">
+                    <div className="relative">
+                        <select
+                            className="w-full pl-5 pr-10 py-3 bg-black/20 border-none rounded-xl focus:ring-2 focus:ring-primary transition outline-none text-white font-medium cursor-pointer appearance-none"
+                            value={selectedDistrict}
+                            onChange={(e) => setSelectedDistrict(e.target.value)}
+                        >
+                            <option value="">Select District</option>
+                            <option value="Wayanad">Wayanad</option>
+                            <option value="Kozhikode">Kozhikode</option>
+                            <option value="Kannur">Kannur</option>
+                            <option value="Malappuram">Malappuram</option>
+                            <option value="Kasaragod">Kasaragod</option>
+                        </select>
+                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-indigo-500 pointer-events-none" />
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredHomes.map(home => (
+                        <div key={home.id} className="bg-surface p-6 rounded-3xl shadow-sm border border-white/10 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300">
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="bg-black/20 p-3 rounded-2xl text-primary">
+                                    <Home className="w-6 h-6" />
+                                </div>
+                                <span className={`px-3 py-1 rounded-full text-xs font-bold ${home.available > 10 ? 'bg-primary/20 text-primary' : 'bg-red-500/20 text-red-500'}`}>
+                                    {home.available} spots left
+                                </span>
+                            </div>
+                            <h3 className="text-xl font-bold text-white mb-1">{home.name}</h3>
+                            <div className="flex items-center gap-2 text-gray-400 mb-6">
+                                <MapPin className="w-4 h-4 text-gray-500" />
+                                <span className="text-sm">{home.location}</span>
+                            </div>
+                            <div className="flex justify-between items-center pt-4 border-t border-white/10">
+                                <div className="text-sm text-gray-400 font-medium">
+                                    Max Cap: <span className="text-white">{home.capacity}</span>
+                                </div>
+                                <Link to="/login" className="text-primary font-bold text-sm hover:text-neon transition">
+                                    Login to Request
+                                </Link>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {filteredHomes.length === 0 && (
+                    <div className="text-center py-12">
+                        <p className="text-gray-400">No safe homes found in this district.</p>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+export default SafeHomeSearch;

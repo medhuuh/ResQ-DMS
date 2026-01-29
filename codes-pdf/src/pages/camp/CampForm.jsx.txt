@@ -1,0 +1,51 @@
+import React from 'react';
+import { Save } from 'lucide-react';
+
+const CampForm = () => {
+    return (
+        <div className="p-6">
+            <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+                <h2 className="text-2xl font-bold mb-6">Create New Relief Camp</h2>
+
+                <form className="space-y-6">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Camp Name</label>
+                        <input type="text" className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-500" placeholder="e.g. Town Hall Relief Camp" />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Location / Address</label>
+                        <textarea className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-500" rows="3" placeholder="Full address" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Capacity</label>
+                            <input type="number" className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-500" placeholder="Max people" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">In-Charge Person</label>
+                            <input type="text" className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-500" placeholder="Contact Name" />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Facilities Available</label>
+                        <div className="flex gap-3 flex-wrap">
+                            {['Food', 'Water', 'Medical', 'Bedding', 'Power'].map(f => (
+                                <label key={f} className="flex items-center gap-2 px-3 py-2 border rounded-lg cursor-pointer hover:bg-gray-50">
+                                    <input type="checkbox" className="rounded text-indigo-600 focus:ring-indigo-500" />
+                                    <span className="text-sm">{f}</span>
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+
+                    <button className="w-full py-3 bg-primary text-white font-bold rounded-xl hover:bg-indigo-700 transition shadow-lg shadow-indigo-500/30 flex items-center justify-center gap-2">
+                        <Save className="w-5 h-5" /> Save Camp
+                    </button>
+                </form>
+            </div>
+        </div>
+    );
+};
+
+export default CampForm;

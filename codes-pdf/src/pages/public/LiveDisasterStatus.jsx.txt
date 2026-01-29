@@ -1,0 +1,78 @@
+import React from 'react';
+import { CloudRain, AlertTriangle, Map, Navigation } from 'lucide-react';
+
+const LiveDisasterStatus = () => {
+    return (
+        <div className="min-h-screen bg-background p-6">
+            <div className="max-w-7xl mx-auto">
+                <header className="mb-8 flex justify-between items-center bg-surface p-6 rounded-2xl shadow-sm border border-white/10">
+                    <div>
+                        <h1 className="text-3xl font-bold text-white">Live Disaster Status</h1>
+                        <p className="text-gray-400">Real-time updates on active disasters</p>
+                    </div>
+                    <div className="text-right">
+                        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Last Updated</span>
+                        <p className="text-lg font-mono text-primary">10:42 AM IST</p>
+                    </div>
+                </header>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div className="bg-red-900/20 border border-red-500/30 p-6 rounded-2xl flex items-center gap-4">
+                        <div className="bg-red-500/20 p-3 rounded-full text-red-500">
+                            <AlertTriangle className="w-8 h-8" />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-bold text-red-400">High Alert</h3>
+                            <p className="text-red-300 text-sm">Flood warning in 3 districts</p>
+                        </div>
+                    </div>
+                    <div className="bg-blue-900/20 border border-blue-500/30 p-6 rounded-2xl flex items-center gap-4">
+                        <div className="bg-blue-500/20 p-3 rounded-full text-blue-500">
+                            <CloudRain className="w-8 h-8" />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-bold text-blue-400">Heavy Rainfall</h3>
+                            <p className="text-blue-300 text-sm">Expected in next 24 hrs</p>
+                        </div>
+                    </div>
+                    <div className="bg-primary/10 border border-primary/30 p-6 rounded-2xl flex items-center gap-4">
+                        <div className="bg-primary/20 p-3 rounded-full text-primary">
+                            <Navigation className="w-8 h-8" />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-bold text-primary">Evacuation Routes</h3>
+                            <p className="text-gray-300 text-sm">Safe zones active</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-2 bg-surface rounded-2xl shadow-sm border border-white/10 overflow-hidden h-96">
+                        <div className="h-full bg-black/40 flex items-center justify-center text-gray-500 flex-col">
+                            <Map className="w-16 h-16 mb-4 text-gray-600" />
+                            <span className="font-medium text-gray-400">Live Impact Map Integration</span>
+                        </div>
+                    </div>
+                    <div className="bg-surface rounded-2xl shadow-sm border border-white/10 p-6">
+                        <h3 className="font-bold text-lg mb-4 text-white">Affected Districts</h3>
+                        <ul className="space-y-3">
+                            {['Wayanad', 'Idukki', 'Ernakulam'].map((district) => (
+                                <li key={district} className="flex justify-between items-center p-3 bg-black/20 rounded-lg">
+                                    <span className="font-medium text-gray-300">{district}</span>
+                                    <span className="text-xs px-2 py-1 bg-red-900/30 text-red-400 border border-red-500/30 rounded-full font-bold">Severe</span>
+                                </li>
+                            ))}
+                            {['Alappuzha', 'Kottayam'].map((district) => (
+                                <li key={district} className="flex justify-between items-center p-3 bg-black/20 rounded-lg">
+                                    <span className="font-medium text-gray-300">{district}</span>
+                                    <span className="text-xs px-2 py-1 bg-yellow-900/30 text-yellow-500 border border-yellow-500/30 rounded-full font-bold">Moderate</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+export default LiveDisasterStatus;
