@@ -16,17 +16,17 @@ const DisasterAlerts = ({ isPublic = false }) => {
     };
 
     return (
-        <div className="p-6">
-            <h2 className="text-3xl font-bold mb-8 text-white">Disaster Prediction & Alerts</h2>
+        <div className="p-4 sm:p-6">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-white">Disaster Prediction & Alerts</h2>
 
             {/* Weather Forecast */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                <div className="bg-surface p-6 rounded-2xl shadow-sm border border-white/10">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-8">
+                <div className="bg-surface p-4 sm:p-6 rounded-2xl shadow-sm border border-white/10">
                     <div className="flex justify-between items-center mb-6">
-                        <h3 className="font-bold text-xl flex items-center gap-2 text-white">
+                        <h3 className="font-bold text-lg sm:text-xl flex items-center gap-2 text-white">
                             <CloudRain className="text-blue-500" /> Weather Forecast
                         </h3>
-                        <span className="text-sm text-gray-400">Next 5 Days</span>
+                        <span className="text-xs sm:text-sm text-gray-400">Next 5 Days</span>
                     </div>
                     <div className="overflow-hidden relative pb-2 group mask-linear-fade">
                         <div className="flex gap-4 animate-scroll pause-on-hover w-max">
@@ -36,17 +36,12 @@ const DisasterAlerts = ({ isPublic = false }) => {
                                 { day: 'Wed', temp: '29°C', rain: '40%', status: 'Cloudy' },
                                 { day: 'Thu', temp: '30°C', rain: '10%', status: 'Sunny' },
                                 { day: 'Fri', temp: '31°C', rain: '0%', status: 'Sunny' },
-                                { day: 'Today', temp: '28°C', rain: '80%', status: 'Heavy Rain' },
-                                { day: 'Tom', temp: '27°C', rain: '90%', status: 'Storm' },
-                                { day: 'Wed', temp: '29°C', rain: '40%', status: 'Cloudy' },
-                                { day: 'Thu', temp: '30°C', rain: '10%', status: 'Sunny' },
-                                { day: 'Fri', temp: '31°C', rain: '0%', status: 'Sunny' },
                             ].map((d, i) => (
-                                <div key={i} className="w-[140px] bg-black/20 p-4 rounded-xl text-center border border-white/5 hover:bg-white/5 transition flex-shrink-0">
-                                    <p className="font-bold text-gray-400 mb-1">{d.day}</p>
-                                    <h4 className="text-2xl font-bold text-blue-500 mb-1">{d.temp}</h4>
-                                    <p className="text-xs text-blue-400 font-medium">{d.status}</p>
-                                    <p className="text-xs text-gray-500 mt-1">Rain: {d.rain}</p>
+                                <div key={i} className="w-[120px] sm:w-[140px] bg-black/20 p-3 sm:p-4 rounded-xl text-center border border-white/5 hover:bg-white/5 transition flex-shrink-0">
+                                    <p className="font-bold text-[10px] sm:text-xs text-gray-400 mb-1">{d.day}</p>
+                                    <h4 className="text-xl sm:text-2xl font-bold text-blue-500 mb-1">{d.temp}</h4>
+                                    <p className="text-[10px] sm:text-xs text-blue-400 font-medium">{d.status}</p>
+                                    <p className="text-[10px] sm:text-xs text-gray-500 mt-1">Rain: {d.rain}</p>
                                 </div>
                             ))}
                         </div>
@@ -54,65 +49,65 @@ const DisasterAlerts = ({ isPublic = false }) => {
                 </div>
 
                 {/* Earthquake Monitor */}
-                <div className="bg-surface p-6 rounded-2xl shadow-sm border border-white/10">
+                <div className="bg-surface p-4 sm:p-6 rounded-2xl shadow-sm border border-white/10">
                     <div className="flex justify-between items-center mb-6">
-                        <h3 className="font-bold text-xl flex items-center gap-2 text-white">
+                        <h3 className="font-bold text-lg sm:text-xl flex items-center gap-2 text-white">
                             <Activity className="text-orange-500" /> Earthquake Monitor
                         </h3>
                         <div className="flex items-center gap-2">
-                            <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
-                            <span className="text-sm text-green-500 font-bold">Stable</span>
+                            <span className="w-2 h-2 sm:w-3 sm:h-3 bg-green-500 rounded-full animate-pulse"></span>
+                            <span className="text-xs sm:text-sm text-green-500 font-bold">Stable</span>
                         </div>
                     </div>
                     <div className="h-40 bg-black/30 rounded-xl flex items-center justify-center relative overflow-hidden ring-1 ring-white/5">
                         {/* Simulated Seismograph Line */}
-                        <div className="absolute inset-0 flex items-center justify-center text-gray-500 font-mono text-sm">
+                        <div className="absolute inset-0 flex items-center justify-center text-gray-500 font-mono text-[10px] sm:text-xs p-4 text-center">
                             [Live Seismograph Data Visualization]
                         </div>
                         <div className="absolute bottom-4 left-4">
-                            <p className="text-xs text-gray-500">Magnitude</p>
-                            <p className="font-bold text-white">1.2 Rch</p>
+                            <p className="text-[10px] text-gray-500">Magnitude</p>
+                            <p className="font-bold text-white text-xs sm:text-sm">1.2 Rch</p>
                         </div>
                         <div className="absolute bottom-4 right-4 text-right">
-                            <p className="text-xs text-gray-500">Epicenter</p>
-                            <p className="font-bold text-white">Arabian Sea</p>
+                            <p className="text-[10px] text-gray-500">Epicenter</p>
+                            <p className="font-bold text-white text-xs sm:text-sm">Arabian Sea</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className={`grid grid-cols-1 ${!isPublic ? 'lg:grid-cols-3' : ''} gap-8`}>
+            <div className={`grid grid-cols-1 ${!isPublic ? 'lg:grid-cols-3' : ''} gap-6 sm:gap-8`}>
                 {/* Landslide Risk */}
-                <div className="bg-surface p-6 rounded-2xl shadow-sm border border-white/10">
-                    <h3 className="font-bold text-xl flex items-center gap-2 mb-4 text-white">
+                <div className="bg-surface p-4 sm:p-6 rounded-2xl shadow-sm border border-white/10">
+                    <h3 className="font-bold text-lg sm:text-xl flex items-center gap-2 mb-4 text-white">
                         <AlertOctagon className="text-red-500" /> Landslide Risk
                     </h3>
                     <div className="flex items-center justify-center py-6">
-                        <div className="w-48 h-48 rounded-full border-8 border-yellow-500/20 flex flex-col items-center justify-center relative">
+                        <div className="w-36 h-36 sm:w-48 sm:h-48 rounded-full border-8 border-yellow-500/20 flex flex-col items-center justify-center relative">
                             <div className="absolute inset-0 rounded-full border-t-8 border-yellow-500 rotate-45"></div>
-                            <span className="text-4xl font-bold text-yellow-500">Medium</span>
-                            <span className="text-sm text-gray-400">Risk Level</span>
+                            <span className="text-3xl sm:text-4xl font-bold text-yellow-500">Medium</span>
+                            <span className="text-xs sm:text-sm text-gray-400">Risk Level</span>
                         </div>
                     </div>
-                    <p className="text-center text-sm text-gray-400 mt-2">
+                    <p className="text-center text-xs sm:text-sm text-gray-400 mt-2">
                         Soil moisture levels are rising in hill stations.
                     </p>
                 </div>
 
                 {/* Manual Alert Trigger - Admin Only */}
                 {!isPublic && (
-                    <div className="lg:col-span-2 bg-surface p-6 rounded-2xl shadow-sm border border-white/10">
-                        <h3 className="font-bold text-xl flex items-center gap-2 mb-6 text-white">
+                    <div className="lg:col-span-2 bg-surface p-4 sm:p-6 rounded-2xl shadow-sm border border-white/10">
+                        <h3 className="font-bold text-lg sm:text-xl flex items-center gap-2 mb-6 text-white">
                             <Radio className="text-indigo-500" /> Manual Alert Trigger
                         </h3>
                         <div className="bg-red-500/10 p-4 rounded-xl border border-red-500/20 mb-6">
-                            <p className="text-sm text-red-400 font-medium">
+                            <p className="text-[10px] sm:text-sm text-red-400 font-medium">
                                 ⚠️ Sending an alert will notify all registered users and volunteers
                             </p>
                         </div>
                         <div className="space-y-4">
                             {/* Priority Selector */}
-                            <div className="flex gap-4 mb-4">
+                            <div className="grid grid-cols-2 sm:flex gap-3 sm:gap-4 mb-4">
                                 {[
                                     { id: 'low', label: 'Safe', color: 'bg-green-500', displayColor: 'green' },
                                     { id: 'medium', label: 'Warning', color: 'bg-yellow-500', displayColor: 'yellow' },
@@ -122,30 +117,30 @@ const DisasterAlerts = ({ isPublic = false }) => {
                                     <button
                                         key={p.id}
                                         onClick={() => setAlertPriority(p.id)}
-                                        className={`flex-1 py-3 rounded-xl border transition-all flex items-center justify-center gap-2 ${alertPriority === p.id
+                                        className={`flex-1 py-2 sm:py-3 px-2 rounded-xl border transition-all flex items-center justify-center gap-2 ${alertPriority === p.id
                                             ? `${p.color} border-transparent text-black font-bold shadow-lg scale-105`
                                             : 'bg-black/20 border-white/10 text-gray-400 hover:bg-white/5'
                                             }`}
                                     >
-                                        <div className={`w-3 h-3 rounded-full ${alertPriority === p.id ? 'bg-black' : p.color}`} />
-                                        {p.label}
+                                        <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${alertPriority === p.id ? 'bg-black' : p.color}`} />
+                                        <span className="text-[10px] sm:text-xs">{p.label}</span>
                                     </button>
                                 ))}
                             </div>
                             <textarea
-                                className="w-full p-4 bg-black/20 border border-white/10 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 text-white placeholder-gray-500 outline-none"
+                                className="w-full p-4 bg-black/20 border border-white/10 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 text-white placeholder-gray-500 outline-none text-sm"
                                 rows="3"
                                 placeholder="Enter urgent alert message regarding disaster status..."
                                 value={alertMessage}
                                 onChange={(e) => setAlertMessage(e.target.value)}
                             ></textarea>
-                            <div className="flex justify-end gap-3">
-                                <button className="px-6 py-3 bg-white/5 text-gray-300 font-bold rounded-xl hover:bg-white/10 transition">
+                            <div className="flex flex-col sm:flex-row justify-end gap-3">
+                                <button className="w-full sm:w-auto px-6 py-3 bg-white/5 text-gray-300 font-bold rounded-xl hover:bg-white/10 transition text-sm">
                                     Cancel
                                 </button>
                                 <button
                                     onClick={handleBroadcast}
-                                    className="px-6 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition flex items-center gap-2 shadow-lg shadow-red-500/30"
+                                    className="w-full sm:w-auto px-6 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition flex items-center justify-center gap-2 shadow-lg shadow-red-500/30 text-sm"
                                 >
                                     <Send className="w-4 h-4" /> Broadcast Alert
                                 </button>

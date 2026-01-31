@@ -43,13 +43,15 @@ const MainLayout = () => {
                     </div>
                 </header>
 
-                {/* Mobile Welcome (if needed, or just rely on content) */}
-                <div className="lg:hidden mb-6">
+                {/* Mobile Welcome */}
+                <div className="lg:hidden mb-6 px-2">
                     <h2 className="text-xl font-bold text-white">{t('welcome')}</h2>
                     <p className="text-gray-400 text-xs">{t('overview')}</p>
                 </div>
 
-                <Outlet />
+                <div className="max-w-full overflow-hidden">
+                    <Outlet />
+                </div>
             </main>
         </div>
     );

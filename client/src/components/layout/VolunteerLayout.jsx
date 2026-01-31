@@ -27,12 +27,12 @@ const VolunteerLayout = () => {
     return (
         <div className="min-h-screen bg-background font-sans text-text-main">
             <nav className="fixed top-0 left-0 w-full z-50 bg-background/90 backdrop-blur-md border-b border-border-color">
-                <div className="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
-                    <Link to="/volunteer" className="flex items-center gap-3">
-                        <img src={logo} alt="ResQ Logo" className="h-10 w-auto" />
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex justify-between items-center">
+                    <Link to="/volunteer" className="flex items-center gap-2 sm:gap-3">
+                        <img src={logo} alt="ResQ Logo" className="h-8 sm:h-10 w-auto" />
                         <div>
-                            <h1 className="text-xl font-bold tracking-tight text-text-main">ResQ <span className="text-neon">{t('role.volunteer')}</span></h1>
-                            <p className="text-[10px] text-text-muted uppercase tracking-widest">Field Operations</p>
+                            <h1 className="text-lg sm:text-xl font-bold tracking-tight text-text-main leading-none">ResQ <span className="text-neon">{t('role.volunteer')}</span></h1>
+                            <p className="text-[8px] sm:text-[10px] text-text-muted uppercase tracking-widest mt-1">Field Operations</p>
                         </div>
                     </Link>
 
@@ -64,8 +64,8 @@ const VolunteerLayout = () => {
                     </div>
 
                     {/* Mobile Toggle */}
-                    <button className="lg:hidden text-text-main" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                        {isMenuOpen ? <X /> : <Menu />}
+                    <button className="lg:hidden p-2 text-text-main hover:bg-surface rounded-lg transition-colors" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                        {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
                     </button>
                 </div>
             </nav >

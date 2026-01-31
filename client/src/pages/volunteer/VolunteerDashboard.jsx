@@ -4,28 +4,27 @@ import { Link } from 'react-router-dom';
 
 const VolunteerDashboard = () => {
     return (
-        <div className="p-6">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-3xl font-bold text-white">Volunteer Dashboard</h2>
-                <Link to="/admin/volunteers/new" className="px-4 py-2 bg-neon text-black font-bold rounded-xl flex items-center gap-2 hover:bg-primary transition shadow-lg shadow-neon/20">
+        <div className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                <h2 className="text-2xl sm:text-3xl font-bold text-white">Volunteer Dashboard</h2>
+                <Link to="/admin/volunteers/new" className="w-full sm:w-auto px-4 py-2 bg-neon text-black font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-primary transition shadow-lg shadow-neon/20">
                     <UserPlus className="w-5 h-5" /> Register Volunteer
                 </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="space-y-6">
-                    <h3 className="font-bold text-lg text-white">Assigned Tasks</h3>
+                    <h3 className="font-bold text-lg text-white flex items-center gap-2">
+                        <Clock className="w-5 h-5 text-neon" /> Assigned Tasks
+                    </h3>
                     {[1, 2, 3].map(task => (
-                        <div key={task} className="bg-surface p-4 rounded-xl shadow-sm border border-white/10 flex gap-4">
-                            <div className="mt-1">
-                                <Clock className="w-5 h-5 text-primary" />
-                            </div>
+                        <div key={task} className="bg-surface p-4 rounded-xl shadow-sm border border-white/10 flex flex-col sm:flex-row gap-4">
                             <div className="flex-1">
                                 <h4 className="font-bold text-white">Distribute Food Packets</h4>
-                                <p className="text-sm text-gray-400 mb-2">Camp: Govt High School, Wayanad</p>
+                                <p className="text-sm text-gray-400 mb-1">Camp: Govt High School, Wayanad</p>
                                 <p className="text-xs text-gray-500">Due: Today, 5:00 PM</p>
                             </div>
-                            <button className="px-3 py-1 bg-black/20 border border-white/10 rounded-lg text-xs font-bold text-gray-400 hover:bg-green-500/20 hover:text-green-400 transition">
+                            <button className="w-full sm:w-auto px-4 py-2 bg-black/20 border border-white/10 rounded-lg text-xs font-bold text-gray-400 hover:bg-green-500/20 hover:text-green-400 transition">
                                 Mark Done
                             </button>
                         </div>
@@ -33,16 +32,18 @@ const VolunteerDashboard = () => {
                 </div>
 
                 <div>
-                    <h3 className="font-bold text-lg text-white mb-6">My Activity Log</h3>
-                    <div className="bg-surface p-6 rounded-2xl shadow-sm border border-white/10 h-64 overflow-y-auto custom-scrollbar">
+                    <h3 className="font-bold text-lg text-white mb-6 flex items-center gap-2">
+                        <CheckCircle className="w-5 h-5 text-green-500" /> My Activity Log
+                    </h3>
+                    <div className="bg-surface p-4 sm:p-6 rounded-2xl shadow-sm border border-white/10 h-64 overflow-y-auto custom-scrollbar">
                         <ol className="relative border-l border-white/10 ml-2">
-                            {[1, 2].map(log => (
+                            {[1, 2, 3, 4].map(log => (
                                 <li key={log} className="mb-6 ml-6">
                                     <span className="absolute flex items-center justify-center w-6 h-6 bg-black rounded-full -left-3 ring-8 ring-surface">
                                         <CheckCircle className="w-4 h-4 text-green-500" />
                                     </span>
-                                    <h3 className="font-medium leading-tight text-white">Completed: Medical Supply Delivery</h3>
-                                    <p className="text-sm text-gray-500">Yesterday at 2:00 PM</p>
+                                    <h3 className="font-medium leading-tight text-white text-sm sm:text-base">Completed: Medical Supply Delivery</h3>
+                                    <p className="text-xs sm:text-sm text-gray-500">Yesterday at 2:00 PM</p>
                                 </li>
                             ))}
                         </ol>
