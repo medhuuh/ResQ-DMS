@@ -20,7 +20,14 @@ app.use(cookieParser());
 
 // Enable CORS
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://localhost:3000'],
+    origin: function (origin, callback) {
+        // Allow Vercel deployments and localhost
+        if (!origin || origin.startsWith('http://localhost') || origin.includes('vercel.app')) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true
 }));
 
