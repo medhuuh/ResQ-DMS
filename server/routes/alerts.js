@@ -4,6 +4,7 @@ const Landslide = require('../models/Landslide');
 const Camp = require('../models/Camp');
 const SafeHome = require('../models/SafeHome');
 const DistrictRisk = require('../models/DistrictRisk');
+const SystemAlert = require('../models/SystemAlert');
 const { protect, authorize } = require('../middleware/auth');
 const https = require('https');
 
@@ -377,6 +378,36 @@ router.put('/risk-override', protect, authorize('admin'), async (req, res, next)
         }
 
         res.json({ success: true, data: override });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// @route   POST /api/alerts/manual
+// @desc    Admin broadcasts a manual alert to all users
+// @access  Private/Admin
+router.post('/manual', protect, authorize('admin', 'volunteer'), async (req, res, next) => {
+    try {
+        const { message, priority } = req.body;
+        if (!message || !priority) {
+            return res.status(400).json({ success: false, error: 'Please provide message and priority' });
+        }
+        const alert = await SystemAlert.create({ message, priority });
+        res.status(201).json({ success: true, data: alert });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// @route   GET /api/alerts/manual
+// @desc    Get the latest manual alerts (last 24h)
+// @access  Public
+router.get('/manual', async (req, res, next) => {
+    try {
+        // Find manual alerts from the last hour to prevent spamming old alerts to newly loaded pages
+        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+        const alerts = await SystemAlert.find({ createdAt: { $gte: oneHourAgo } }).sort({ createdAt: -1 });
+        res.json({ success: true, count: alerts.length, data: alerts });
     } catch (err) {
         next(err);
     }

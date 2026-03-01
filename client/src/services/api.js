@@ -114,7 +114,9 @@ export const landslidesAPI = {
 // ======== ALERTS API ========
 export const alertsAPI = {
     getRiskMap: () => api.get('/alerts/risk-map'),
-    getLiveMarkers: () => api.get('/alerts/live-markers')
+    getLiveMarkers: () => api.get('/alerts/live-markers'),
+    getManualAlerts: () => api.get('/alerts/manual'),
+    broadcastManualAlert: (data) => api.post('/alerts/manual', data)
 };
 
 export default api;

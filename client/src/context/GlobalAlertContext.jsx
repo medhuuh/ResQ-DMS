@@ -7,17 +7,25 @@ const GlobalAlertContext = createContext();
 export const GlobalAlertProvider = ({ children }) => {
     const [alerts, setAlerts] = useState([]);
     const previousRiskRef = useRef({});
+    const previousManualAlertsRef = useRef(new Set());
+    const isFirstLoad = useRef(true);
 
     useEffect(() => {
         // Function to check for new risks
         const checkRiskUpdates = async () => {
             try {
+                // Poll Risk Map
                 const res = await api.get('/alerts/risk-map');
                 const riskData = res.data;
+
+                // Poll Manual Alerts
+                const manualRes = await api.get('/alerts/manual');
+                const manualData = manualRes.data.data || [];
 
                 const newAlerts = [];
                 const currentRiskMap = {};
 
+                // Process Risk Map
                 riskData.forEach(d => {
                     const currentRisk = d.risk;
                     const prevRisk = previousRiskRef.current[d.district];
@@ -40,8 +48,25 @@ export const GlobalAlertProvider = ({ children }) => {
                     currentRiskMap[d.district] = currentRisk;
                 });
 
-                // Update the ref for next interval
+                // Process Manual Alerts
+                const currentAlertIds = new Set();
+                manualData.forEach(alert => {
+                    currentAlertIds.add(alert._id);
+                    if (!previousManualAlertsRef.current.has(alert._id) && !isFirstLoad.current) {
+                        newAlerts.push({
+                            id: alert._id,
+                            district: `🚨 URGENT: ${alert.priority.toUpperCase()} ALERT`,
+                            risk: alert.priority === 'critical' || alert.priority === 'high' ? 'High' : 'Moderate',
+                            description: alert.message,
+                            isManual: true
+                        });
+                    }
+                });
+
+                // Update refs for next interval
                 previousRiskRef.current = currentRiskMap;
+                previousManualAlertsRef.current = new Set([...previousManualAlertsRef.current, ...currentAlertIds]);
+                isFirstLoad.current = false;
 
                 if (newAlerts.length > 0) {
                     setAlerts(prev => [...prev, ...newAlerts]);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CloudRain, AlertOctagon, Send, Radio, Sun, Cloud, CloudDrizzle, CloudLightning, CloudSnow, Wind, Droplets, Thermometer, RefreshCw, AlertTriangle, MapPin, Calendar, Clock, ChevronDown, ChevronUp, Shield } from 'lucide-react';
 import { useNotification } from '../../context/NotificationContext';
-import { landslidesAPI } from '../../services/api';
+import { landslidesAPI, alertsAPI } from '../../services/api';
 
 const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY;
 
@@ -161,11 +161,17 @@ const DisasterAlerts = ({ isPublic = false }) => {
         }
     };
 
-    const handleBroadcast = () => {
+    const handleBroadcast = async () => {
         if (!alertMessage.trim()) return;
-        showNotification(alertMessage, alertPriority);
-        setAlertMessage('');
-        setAlertPriority('critical');
+        try {
+            await alertsAPI.broadcastManualAlert({ message: alertMessage, priority: alertPriority });
+            showNotification('Alert broadcasted successfully. All devices will sync shortly.', 'success');
+            setAlertMessage('');
+            setAlertPriority('critical');
+        } catch (err) {
+            console.error('Broadcast failed', err);
+            showNotification('Failed to broadcast alert', 'error');
+        }
     };
 
     const risk = riskData ? riskConfig[riskData.riskLevel] || riskConfig.Low : riskConfig.Low;
