@@ -63,13 +63,13 @@ const SafeHomeSearch = ({ canEdit = false, viewOnly = false }) => {
     return (
         <div className="min-h-screen bg-background p-6">
             <div className="max-w-6xl mx-auto">
-                <header className="mb-8 flex justify-between items-center">
+                <header className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
                         <h1 className="text-3xl font-bold text-white">{t('nav.safeHomes')}</h1>
                         <p className="text-gray-400 mt-2">{t('card.safeHomes.desc')}</p>
                     </div>
                     {!viewOnly && (
-                        <Link to="/volunteer/safe-homes/new" className="px-4 py-2 bg-primary text-white font-bold rounded-xl flex items-center gap-2 hover:bg-lime-700 transition shadow-lg shadow-lime-500/30">
+                        <Link to="/volunteer/safe-homes/new" className="px-4 py-2 bg-primary text-white font-bold rounded-xl flex items-center gap-2 hover:bg-lime-700 transition shadow-lg shadow-lime-500/30 w-full sm:w-auto justify-center">
                             <Plus className="w-5 h-5" /> {t('action.listHome')}
                         </Link>
                     )}

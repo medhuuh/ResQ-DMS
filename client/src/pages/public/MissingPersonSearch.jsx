@@ -49,13 +49,13 @@ const MissingPersonSearch = ({ viewOnly = false }) => {
         <div className="min-h-screen bg-background p-6 relative">
             <div className="max-w-6xl mx-auto">
 
-                <header className="mb-8 flex justify-between items-center">
+                <header className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
                         <h1 className="text-3xl font-bold text-white">{t('nav.missing')}</h1>
                         <p className="text-gray-400 mt-2">{t('missing.subtitle')}</p>
                     </div>
                     {!viewOnly && (
-                        <Link to="/volunteer/missing/new" className="px-4 py-2 bg-red-600 text-white font-bold rounded-xl flex items-center gap-2 hover:bg-red-700 transition shadow-lg shadow-red-500/30">
+                        <Link to="/volunteer/missing/new" className="px-4 py-2 bg-red-600 text-white font-bold rounded-xl flex items-center gap-2 hover:bg-red-700 transition shadow-lg shadow-red-500/30 w-full sm:w-auto justify-center">
                             <Plus className="w-5 h-5" /> {t('action.reportMissing')}
                         </Link>
                     )}
@@ -146,17 +146,17 @@ const MissingPersonSearch = ({ viewOnly = false }) => {
                                 <X className="w-5 h-5" />
                             </button>
 
-                            <div className="p-8">
-                                <div className="flex items-start gap-6">
+                            <div className="p-4 sm:p-8 overflow-y-auto max-h-[85vh]">
+                                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 text-center sm:text-left">
                                     <div className="w-24 h-24 bg-black/20 rounded-2xl flex items-center justify-center flex-shrink-0">
                                         <User className="w-10 h-10 text-gray-500" />
                                     </div>
-                                    <div>
+                                    <div className="w-full">
                                         <h2 className="text-2xl font-bold text-white">{selectedPerson.name}</h2>
                                         <p className="text-gray-400">{selectedPerson.age} Years • {selectedPerson.gender}</p>
 
                                         {!viewOnly ? (
-                                            <div className="flex gap-2 mt-3">
+                                            <div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-3">
                                                 <button
                                                     onClick={() => handleStatusUpdate(selectedPerson._id, 'Found')}
                                                     className={`px-3 py-1 rounded-lg text-xs font-bold border transition ${selectedPerson.status === 'Found' ? 'bg-primary text-black border-primary' : 'bg-transparent text-gray-400 border-gray-600 hover:border-primary hover:text-primary'}`}
