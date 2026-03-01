@@ -1,133 +1,240 @@
-import React, { useState } from 'react';
-import { MapPin, Info, X } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { MapPin, Info, AlertTriangle, Shield, RefreshCw } from 'lucide-react';
+import BaseMap from '../../components/map/BaseMap';
+import { GeoJSON, useMap } from 'react-leaflet';
+import keralaGeoJSON from '../../data/kerala-districts.json';
+import api from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
+
+const RISK_COLORS = {
+    High: '#ef4444',
+    Moderate: '#facc15',
+    Safe: '#22c55e'
+};
+
+const RISK_BG = {
+    High: 'bg-red-500/20 border-red-500/30',
+    Moderate: 'bg-yellow-500/20 border-yellow-500/30',
+    Safe: 'bg-green-500/20 border-green-500/30'
+};
+
+const RISK_TEXT = {
+    High: 'text-red-400',
+    Moderate: 'text-yellow-400',
+    Safe: 'text-green-400'
+};
+
+// Component to fit map bounds to Kerala
+const FitBounds = () => {
+    const map = useMap();
+    useEffect(() => {
+        map.fitBounds([[8.2, 74.8], [12.8, 77.4]], { padding: [20, 20] });
+    }, [map]);
+    return null;
+};
 
 const RiskZoneMap = ({ isPublic = false }) => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const { user } = useAuth();
+    const [riskData, setRiskData] = useState([]);
+    const [selectedZone, setSelectedZone] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [geoJsonKey, setGeoJsonKey] = useState(0);
+    const [updatingOverride, setUpdatingOverride] = useState(false);
 
-    const handleAddZone = (e) => {
-        e.preventDefault();
-        // Here you would typically handle form submission
-        console.log("Adding zone...");
-        setIsModalOpen(false);
+    const isAdmin = user?.role === 'admin' && !isPublic;
+
+    useEffect(() => {
+        fetchRiskData();
+    }, []);
+
+    const fetchRiskData = async () => {
+        setLoading(true);
+        try {
+            const res = await api.get('/alerts/risk-map');
+            setRiskData(res.data);
+            setGeoJsonKey(prev => prev + 1);
+            if (selectedZone) {
+                // Update selected zone data if currently selected
+                const updatedZone = res.data.find(d => d.district === selectedZone.district);
+                if (updatedZone) setSelectedZone(updatedZone);
+            }
+        } catch (err) {
+            console.error('Failed to fetch risk data:', err);
+        } finally {
+            setLoading(false);
+        }
     };
 
+    const handleOverrideChange = async (district, newRiskLevel) => {
+        try {
+            setUpdatingOverride(true);
+            await api.put('/alerts/risk-override', { district, riskLevel: newRiskLevel });
+            await fetchRiskData(); // Re-fetch all data to apply overriding logic from backend
+        } catch (err) {
+            console.error('Failed to update risk override:', err);
+            alert('Failed to update risk level. Check console.');
+        } finally {
+            setUpdatingOverride(false);
+        }
+    };
+
+    const getRiskForDistrict = useCallback((districtName) => {
+        return riskData.find(d =>
+            d.district.toLowerCase() === districtName.toLowerCase()
+        ) || { risk: 'Safe', description: 'No data available', score: 0, eventCount: 0 };
+    }, [riskData]);
+
+    const styleFeature = useCallback((feature) => {
+        const district = feature.properties.district;
+        const risk = getRiskForDistrict(district);
+        return {
+            fillColor: RISK_COLORS[risk.risk] || RISK_COLORS.Safe,
+            weight: 2,
+            opacity: 0.8,
+            color: '#ffffff30',
+            fillOpacity: 0.45,
+        };
+    }, [getRiskForDistrict]);
+
+    const onEachFeature = useCallback((feature, layer) => {
+        const district = feature.properties.district;
+        const risk = getRiskForDistrict(district);
+
+        layer.bindTooltip(`<strong>${district}</strong><br/>Risk: ${risk.risk}`, {
+            sticky: true,
+            className: 'leaflet-tooltip-dark'
+        });
+
+        layer.on({
+            click: () => {
+                setSelectedZone({ district, ...risk });
+            },
+            mouseover: (e) => {
+                e.target.setStyle({ weight: 3, fillOpacity: 0.65, color: '#ffffff80' });
+            },
+            mouseout: (e) => {
+                e.target.setStyle({ weight: 2, fillOpacity: 0.45, color: '#ffffff30' });
+            }
+        });
+    }, [getRiskForDistrict]);
+
+    const highRiskCount = riskData.filter(d => d.risk === 'High').length;
+    const moderateCount = riskData.filter(d => d.risk === 'Moderate').length;
+    const safeCount = riskData.filter(d => d.risk === 'Safe').length;
+
     return (
-        <div className="p-6 h-[calc(100vh-80px)] flex flex-col relative">
-            {/* Modal Overlay */}
-            {isModalOpen && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
-                        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                            <h3 className="text-xl font-bold text-gray-800">Add New Risk Zone</h3>
-                            <button
-                                onClick={() => setIsModalOpen(false)}
-                                className="p-2 hover:bg-gray-200 rounded-full transition-colors"
-                            >
-                                <X className="w-5 h-5 text-gray-500" />
-                            </button>
-                        </div>
-
-                        <form onSubmit={handleAddZone} className="p-6 space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Zone Name</label>
-                                <input
-                                    type="text"
-                                    placeholder="e.g. Riverside Flood Area"
-                                    className="w-full px-4 py-2 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50"
-                                    required
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Risk Level</label>
-                                <select className="w-full px-4 py-2 rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary/50">
-                                    <option value="high">High Risk (Red)</option>
-                                    <option value="moderate">Moderate Risk (Yellow)</option>
-                                    <option value="low">Low Risk (Green)</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                                <textarea
-                                    rows="3"
-                                    placeholder="Describe the potential risks..."
-                                    className="w-full px-4 py-2 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50"
-                                ></textarea>
-                            </div>
-
-                            <div className="pt-4 flex gap-3">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsModalOpen(false)}
-                                    className="flex-1 py-2.5 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="flex-1 py-2.5 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700 transition shadow-lg shadow-red-600/20"
-                                >
-                                    Add Zone
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-
-            <div className="flex justify-between items-center mb-6">
+        <div className="p-4 sm:p-6 h-[calc(100vh-80px)] flex flex-col">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
                 <div>
-                    <h2 className="text-3xl font-bold">Risk Zone Map</h2>
-                    <p className="text-gray-500">Geospatial view of vulnerable areas</p>
+                    <h2 className="text-2xl sm:text-3xl font-bold text-white">Risk Zone Map</h2>
+                    <p className="text-gray-400 text-sm">Geospatial view of vulnerable areas based on historical data</p>
                 </div>
-                <div className="flex gap-2">
-                    <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold flex items-center gap-1"><span className="w-2 h-2 bg-red-500 rounded-full"></span> High Risk</span>
-                    <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-bold flex items-center gap-1"><span className="w-2 h-2 bg-yellow-500 rounded-full"></span> Moderate</span>
-                    <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold flex items-center gap-1"><span className="w-2 h-2 bg-green-500 rounded-full"></span> Safe Zone</span>
-
-                    {!isPublic && (
-                        <button
-                            onClick={() => setIsModalOpen(true)}
-                            className="ml-4 px-4 py-2 bg-red-600 text-white font-bold rounded-xl shadow-lg hover:bg-red-700 transition"
-                        >
-                            + Add Zone
-                        </button>
-                    )}
+                <div className="flex gap-2 flex-wrap items-center">
+                    <span className="px-3 py-1 bg-red-500/20 text-red-400 rounded-full text-xs font-bold flex items-center gap-1 border border-red-500/30">
+                        <span className="w-2 h-2 bg-red-500 rounded-full"></span> High ({highRiskCount})
+                    </span>
+                    <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-xs font-bold flex items-center gap-1 border border-yellow-500/30">
+                        <span className="w-2 h-2 bg-yellow-500 rounded-full"></span> Moderate ({moderateCount})
+                    </span>
+                    <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-bold flex items-center gap-1 border border-green-500/30">
+                        <span className="w-2 h-2 bg-green-500 rounded-full"></span> Safe ({safeCount})
+                    </span>
+                    <button onClick={fetchRiskData} className="ml-2 p-2 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition text-gray-400 hover:text-white">
+                        <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                    </button>
                 </div>
             </div>
 
-            <div className="flex-1 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
-                {/* Map Placeholder */}
-                <div className="absolute inset-0 bg-slate-100 flex items-center justify-center">
-                    <div className="text-center text-gray-400">
-                        <MapPin className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                        <p className="font-medium text-lg">Interactive Google Map / OpenStreetMap</p>
-                        <p className="text-sm mt-2">API Integration Required</p>
-                    </div>
+            <div className="flex-1 flex gap-4 min-h-0">
+                {/* Map */}
+                <div className="flex-1 bg-surface rounded-2xl shadow-sm border border-white/10 overflow-hidden relative">
+                    {loading ? (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-10">
+                            <div className="w-10 h-10 border-4 border-neon border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                    ) : null}
+                    <BaseMap zoom={7}>
+                        <FitBounds />
+                        {riskData.length > 0 && (
+                            <GeoJSON
+                                key={geoJsonKey}
+                                data={keralaGeoJSON}
+                                style={styleFeature}
+                                onEachFeature={onEachFeature}
+                            />
+                        )}
+                    </BaseMap>
                 </div>
 
-                {/* Overlay Info Panel */}
-                <div className="absolute top-4 right-4 w-80 bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-lg border border-gray-200">
-                    <h4 className="font-bold flex items-center gap-2 mb-3">
-                        <Info className="w-4 h-4 text-indigo-500" /> Zone Details
+                {/* Zone Details Panel */}
+                <div className="w-72 xl:w-80 bg-surface rounded-2xl shadow-sm border border-white/10 p-4 flex-shrink-0 overflow-y-auto hidden lg:block">
+                    <h4 className="font-bold flex items-center gap-2 mb-4 text-white">
+                        <Info className="w-4 h-4 text-indigo-400" /> Zone Details
                     </h4>
-                    <div className="space-y-3">
-                        <div className="p-3 bg-red-50 rounded-lg border border-red-100">
-                            <div className="flex justify-between mb-1">
-                                <span className="font-bold text-red-800 text-sm">Flood Zone A</span>
-                                <span className="text-xs text-red-600 font-bold">Critical</span>
+
+                    {selectedZone ? (
+                        <div className="space-y-4">
+                            <div className={`p-4 rounded-xl border ${RISK_BG[selectedZone.risk]}`}>
+                                <div className="flex justify-between items-start mb-2">
+                                    <span className="font-bold text-white text-sm">{selectedZone.district}</span>
+                                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${RISK_TEXT[selectedZone.risk]} ${RISK_BG[selectedZone.risk]}`}>
+                                        {selectedZone.risk}
+                                    </span>
+                                </div>
+                                <p className="text-xs text-gray-300">{selectedZone.description}</p>
+                                <div className="flex gap-4 mt-3 pt-3 border-t border-white/10">
+                                    <div>
+                                        <p className="text-[10px] text-gray-500 uppercase">Risk Score</p>
+                                        <p className={`font-bold text-sm ${RISK_TEXT[selectedZone.risk]}`}>{selectedZone.score}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] text-gray-500 uppercase">Historical Events</p>
+                                        <p className="font-bold text-sm text-white">{selectedZone.eventCount}</p>
+                                    </div>
+                                </div>
+
+                                {isAdmin && (
+                                    <div className="mt-4 pt-3 border-t border-white/10">
+                                        <label className="text-[10px] text-gray-500 font-bold uppercase mb-2 block">Admin Override</label>
+                                        <select
+                                            className="w-full bg-black/40 border border-white/10 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-primary"
+                                            onChange={(e) => handleOverrideChange(selectedZone.district, e.target.value)}
+                                            disabled={updatingOverride}
+                                            value={selectedZone.isManualOverride ? selectedZone.risk : 'Auto'}
+                                        >
+                                            <option value="Auto">Auto (Calculated)</option>
+                                            <option value="Safe">Safe</option>
+                                            <option value="Moderate">Moderate</option>
+                                            <option value="High">High</option>
+                                        </select>
+                                    </div>
+                                )}
                             </div>
-                            <p className="text-xs text-red-600">River water levels exceeding safe mark.</p>
+
+                            <p className="text-[10px] text-gray-500 text-center italic">Click another district for details</p>
                         </div>
-                        <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-100">
-                            <div className="flex justify-between mb-1">
-                                <span className="font-bold text-yellow-800 text-sm">Landslide Zone B</span>
-                                <span className="text-xs text-yellow-600 font-bold">Warning</span>
-                            </div>
-                            <p className="text-xs text-yellow-600">Heavy rainfall predicted.</p>
+                    ) : (
+                        <div className="space-y-3">
+                            <p className="text-sm text-gray-500 text-center py-4 italic">Click a district on the map</p>
+
+                            {/* Quick overview of high-risk zones */}
+                            {riskData.filter(d => d.risk !== 'Safe').length > 0 && (
+                                <>
+                                    <p className="text-xs text-gray-500 uppercase tracking-wider font-bold">Alert Zones</p>
+                                    {riskData.filter(d => d.risk !== 'Safe').map(d => (
+                                        <div key={d.district} className={`p-3 rounded-lg border cursor-pointer hover:bg-white/5 transition ${RISK_BG[d.risk]}`}
+                                            onClick={() => setSelectedZone(d)}>
+                                            <div className="flex justify-between mb-1">
+                                                <span className="font-bold text-white text-xs">{d.district}</span>
+                                                <span className={`text-[10px] font-bold ${RISK_TEXT[d.risk]}`}>{d.risk}</span>
+                                            </div>
+                                            <p className="text-[10px] text-gray-400">{d.eventCount} event(s) this period</p>
+                                        </div>
+                                    ))}
+                                </>
+                            )}
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
         </div>

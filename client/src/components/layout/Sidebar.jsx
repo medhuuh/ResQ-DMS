@@ -31,7 +31,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         { name: t('nav.riskMap'), icon: Map, path: '/admin/map' },
         { name: t('nav.camps'), icon: Tent, path: '/admin/camps' },
         { name: t('nav.safeHomes'), icon: ShieldCheck, path: '/admin/safe-homes' },
-        { name: t('nav.refugees'), icon: Users, path: '/admin/refugees' },
+        { name: t('nav.volunteers'), icon: HandHeart, path: '/admin/volunteers' },
         { name: t('nav.missing'), icon: UserX, path: '/admin/missing-persons' },
     ];
 

@@ -3,39 +3,56 @@ import { X, Moon, Sun, Languages, LogOut, UserCircle } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const SettingsModal = ({ isOpen, onClose }) => {
     const { theme, toggleTheme } = useTheme();
     const { language, toggleLanguage, t } = useLanguage();
     const navigate = useNavigate();
     const location = useLocation();
+    const { user, logout, login } = useAuth();
 
-    const [loginRole, setLoginRole] = React.useState(null); // 'admin' | 'volunteer' | null
+    const [loginRole, setLoginRole] = React.useState(null);
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
+    const [loginError, setLoginError] = React.useState('');
 
     if (!isOpen) return null;
 
-    const handleLogout = () => {
-        // Clear anything if needed
+    const handleLogout = async () => {
+        await logout();
         navigate('/login');
         onClose();
     };
 
-    const handleLoginSubmit = (e) => {
+    const handleLoginSubmit = async (e) => {
         e.preventDefault();
-        // In a real app, validate credentials here based on loginRole
-        if (loginRole === 'admin') {
-            navigate('/admin/dashboard');
-        } else if (loginRole === 'volunteer') {
-            navigate('/volunteer');
+        setLoginError('');
+
+        const result = await login(email, password, loginRole);
+
+        if (result.success) {
+            if (loginRole === 'admin') {
+                navigate('/admin/dashboard');
+            } else if (loginRole === 'volunteer') {
+                navigate('/volunteer');
+            }
+            setLoginRole(null);
+            setEmail('');
+            setPassword('');
+            onClose();
+        } else {
+            setLoginError(result.message);
         }
-        setLoginRole(null);
-        onClose();
     };
 
     const renderLoginForm = () => (
         <form onSubmit={handleLoginSubmit} className="space-y-4">
+            {loginError && (
+                <div className="p-2 bg-red-500/20 text-red-400 text-sm rounded-lg border border-red-500/30">
+                    {loginError}
+                </div>
+            )}
             <div>
                 <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
                     Email ({loginRole === 'admin' ? 'Admin' : 'Volunteer'})
@@ -65,7 +82,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
             <div className="flex gap-3 pt-2">
                 <button
                     type="button"
-                    onClick={() => setLoginRole(null)}
+                    onClick={() => { setLoginRole(null); setLoginError(''); }}
                     className={`flex-1 py-3 rounded-xl font-bold border transition ${theme === 'dark' ? 'border-white/10 text-gray-300 hover:bg-white/5' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
                 >
                     Back
@@ -93,6 +110,11 @@ const SettingsModal = ({ isOpen, onClose }) => {
                         <p className={`text-xs sm:text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
                             {loginRole ? `Please login as ${loginRole}` : `${t('appName')} Preferences`}
                         </p>
+                        {user && !loginRole && (
+                            <p className={`text-xs mt-1 ${theme === 'dark' ? 'text-primary' : 'text-green-600'}`}>
+                                Logged in as: {user.firstName} ({user.role})
+                            </p>
+                        )}
                     </div>
                     <button
                         onClick={onClose}
@@ -137,7 +159,6 @@ const SettingsModal = ({ isOpen, onClose }) => {
                             {/* Dynamic Role / Navigation Options */}
                             {location.pathname.startsWith('/admin') ? (
                                 <>
-                                    {/* Admin View Options */}
                                     <button
                                         onClick={() => setLoginRole('volunteer')}
                                         className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl flex flex-col items-center justify-center gap-2 sm:gap-3 transition-all border ${theme === 'dark' ? 'bg-white/5 border-white/10 hover:bg-white/10 text-white' : 'bg-gray-50 border-gray-200 hover:bg-gray-100 text-gray-900'}`}
@@ -159,7 +180,6 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                 </>
                             ) : location.pathname.startsWith('/volunteer') ? (
                                 <>
-                                    {/* Volunteer View Options */}
                                     <button
                                         onClick={() => setLoginRole('admin')}
                                         className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl flex flex-col items-center justify-center gap-2 sm:gap-3 transition-all border ${theme === 'dark' ? 'bg-white/5 border-white/10 hover:bg-white/10 text-white' : 'bg-gray-50 border-gray-200 hover:bg-gray-100 text-gray-900'}`}
@@ -181,7 +201,6 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                 </>
                             ) : (
                                 <>
-                                    {/* Public View Options */}
                                     <button
                                         onClick={() => setLoginRole('volunteer')}
                                         className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl flex flex-col items-center justify-center gap-2 sm:gap-3 transition-all border ${theme === 'dark' ? 'bg-white/5 border-white/10 hover:bg-white/10 text-white' : 'bg-gray-50 border-gray-200 hover:bg-gray-100 text-gray-900'}`}

@@ -1,24 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Filter, MoreHorizontal } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { refugeesAPI } from '../../services/api';
 
 const RefugeeList = () => {
-    const [refugees, setRefugees] = useState([
-        { id: 1, name: "Refugee Name 1", age: 34, gender: "M", district: "Wayanad", camp: "Camp Alpha", status: "Safe" },
-        { id: 2, name: "Refugee Name 2", age: 28, gender: "F", district: "Idukki", camp: "Camp Alpha", status: "Medical Needs" },
-        { id: 3, name: "Refugee Name 3", age: 45, gender: "M", district: "Ernakulam", camp: "Camp Beta", status: "Safe" },
-    ]);
+    const [refugees, setRefugees] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
 
-    const cycleStatus = (id) => {
-        setRefugees(refugees.map(r => {
-            if (r.id === id) {
-                const statuses = ['Safe', 'Medical Needs', 'Transferred'];
-                const nextIndex = (statuses.indexOf(r.status) + 1) % statuses.length;
-                return { ...r, status: statuses[nextIndex] };
-            }
-            return r;
-        }));
+    useEffect(() => {
+        fetchRefugees();
+    }, []);
+
+    const fetchRefugees = async (search = '') => {
+        try {
+            const params = search ? { search } : {};
+            const res = await refugeesAPI.getAll(params);
+            setRefugees(res.data.data);
+        } catch (err) {
+            console.error('Failed to fetch refugees:', err);
+        } finally {
+            setLoading(false);
+        }
     };
+
+    const cycleStatus = async (id) => {
+        const refugee = refugees.find(r => r._id === id);
+        if (!refugee) return;
+        const statuses = ['Safe', 'Medical Needs', 'Transferred'];
+        const nextIndex = (statuses.indexOf(refugee.status) + 1) % statuses.length;
+        const newStatus = statuses[nextIndex];
+
+        try {
+            await refugeesAPI.update(id, { status: newStatus });
+            setRefugees(refugees.map(r => r._id === id ? { ...r, status: newStatus } : r));
+        } catch (err) {
+            console.error('Failed to update status:', err);
+        }
+    };
+
+    const handleSearch = (e) => {
+        const value = e.target.value;
+        setSearchTerm(value);
+        // Debounce search
+        clearTimeout(window._refugeeSearchTimer);
+        window._refugeeSearchTimer = setTimeout(() => fetchRefugees(value), 300);
+    };
+
+    if (loading) {
+        return <div className="p-6 flex justify-center py-20"><div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div></div>;
+    }
 
     return (
         <div className="p-4 sm:p-6">
@@ -35,11 +66,8 @@ const RefugeeList = () => {
             <div className="bg-surface p-3 sm:p-4 rounded-2xl shadow-sm border border-white/10 mb-6 flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
-                    <input type="text" placeholder="Search by name, ID, or district..." className="w-full pl-9 sm:pl-10 pr-4 py-2 bg-black/20 border border-white/10 rounded-xl focus:ring-2 focus:ring-primary text-white placeholder-gray-500 outline-none text-sm" />
+                    <input type="text" placeholder="Search by name, ID, or district..." value={searchTerm} onChange={handleSearch} className="w-full pl-9 sm:pl-10 pr-4 py-2 bg-black/20 border border-white/10 rounded-xl focus:ring-2 focus:ring-primary text-white placeholder-gray-500 outline-none text-sm" />
                 </div>
-                <button className="w-full sm:w-auto px-4 py-2 border border-white/10 text-gray-300 rounded-xl flex items-center justify-center gap-2 hover:bg-black/20 text-sm">
-                    <Filter className="w-4 h-4" /> Filter
-                </button>
             </div>
 
             <div className="bg-surface rounded-2xl shadow-sm border border-white/10 overflow-hidden">
@@ -57,22 +85,22 @@ const RefugeeList = () => {
                         </thead>
                         <tbody className="divide-y divide-white/5">
                             {refugees.map((item) => (
-                                <tr key={item.id} className="hover:bg-white/5 transition">
-                                    <td className="p-4 font-bold text-white text-sm sm:text-base">{item.name}</td>
-                                    <td className="p-4 text-gray-400 text-sm">{item.age} / {item.gender}</td>
+                                <tr key={item._id} className="hover:bg-white/5 transition">
+                                    <td className="p-4 font-bold text-white text-sm sm:text-base">{item.fullName}</td>
+                                    <td className="p-4 text-gray-400 text-sm">{item.age} / {item.gender?.charAt(0)}</td>
                                     <td className="p-4 text-gray-400 text-sm">{item.district}</td>
-                                    <td className="p-4 text-primary font-medium text-sm">{item.camp}</td>
+                                    <td className="p-4 text-primary font-medium text-sm">{item.assignedCamp?.name || item.assignedSafeHome?.ownerName || 'Unassigned'}</td>
                                     <td className="p-4 text-sm">
                                         <span className={`px-2 py-0.5 text-[10px] font-bold rounded border ${item.status === 'Safe' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
-                                                item.status === 'Medical Needs' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
-                                                    'bg-blue-500/20 text-blue-400 border-blue-500/30'
+                                            item.status === 'Medical Needs' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                                                'bg-blue-500/20 text-blue-400 border-blue-500/30'
                                             }`}>
                                             {item.status}
                                         </span>
                                     </td>
                                     <td className="p-4 text-right">
                                         <button
-                                            onClick={() => cycleStatus(item.id)}
+                                            onClick={() => cycleStatus(item._id)}
                                             className="text-primary text-xs sm:text-sm font-bold hover:underline"
                                         >
                                             Update
@@ -80,6 +108,9 @@ const RefugeeList = () => {
                                     </td>
                                 </tr>
                             ))}
+                            {refugees.length === 0 && (
+                                <tr><td colSpan="6" className="p-8 text-center text-gray-500">No refugees found</td></tr>
+                            )}
                         </tbody>
                     </table>
                 </div>

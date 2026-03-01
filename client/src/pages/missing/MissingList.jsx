@@ -1,23 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, UserPlus } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { missingPersonsAPI } from '../../services/api';
 
 const MissingList = () => {
-    const [missingPersons, setMissingPersons] = useState([
-        { id: 1, name: "Jane Doe 1", location: "Town Hall, Wayanad", status: "Missing", contact: "Brother: +91 987..." },
-        { id: 2, name: "Jane Doe 2", location: "Town Hall, Wayanad", status: "Found", contact: "Brother: +91 987..." },
-        { id: 3, name: "Jane Doe 3", location: "Town Hall, Wayanad", status: "Missing", contact: "Brother: +91 987..." },
-    ]);
+    const [missingPersons, setMissingPersons] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const handleUpdateStatus = (id) => {
-        setMissingPersons(missingPersons.map(person => {
-            if (person.id === id) {
-                const newStatus = person.status === 'Missing' ? 'Found' : 'Missing';
-                return { ...person, status: newStatus };
-            }
-            return person;
-        }));
+    useEffect(() => {
+        fetchMissingPersons();
+    }, []);
+
+    const fetchMissingPersons = async () => {
+        try {
+            const res = await missingPersonsAPI.getAll();
+            setMissingPersons(res.data.data);
+        } catch (err) {
+            console.error('Failed to fetch missing persons:', err);
+        } finally {
+            setLoading(false);
+        }
     };
+
+    const handleUpdateStatus = async (id) => {
+        const person = missingPersons.find(p => p._id === id);
+        if (!person) return;
+        const newStatus = person.status === 'Missing' ? 'Found' : 'Missing';
+
+        try {
+            await missingPersonsAPI.update(id, { status: newStatus });
+            setMissingPersons(missingPersons.map(p => p._id === id ? { ...p, status: newStatus } : p));
+        } catch (err) {
+            console.error('Failed to update status:', err);
+        }
+    };
+
+    if (loading) {
+        return <div className="p-6 flex justify-center py-20"><div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div></div>;
+    }
 
     return (
         <div className="p-4 sm:p-6">
@@ -46,26 +66,30 @@ const MissingList = () => {
                         </thead>
                         <tbody className="divide-y divide-white/10">
                             {missingPersons.map((item) => (
-                                <tr key={item.id} className="hover:bg-white/5 transition">
+                                <tr key={item._id} className="hover:bg-white/5 transition">
                                     <td className="p-4">
-                                        <div className="w-10 h-10 bg-black/40 rounded-full"></div>
+                                        {item.photo ? (
+                                            <img src={`http://localhost:5000${item.photo}`} alt={item.name} className="w-10 h-10 rounded-full object-cover" />
+                                        ) : (
+                                            <div className="w-10 h-10 bg-black/40 rounded-full"></div>
+                                        )}
                                     </td>
                                     <td className="p-4 font-bold text-white">{item.name}</td>
-                                    <td className="p-4 text-gray-400 text-sm">{item.location}</td>
+                                    <td className="p-4 text-gray-400 text-sm">{item.lastSeenLocation}</td>
                                     <td className="p-4">
                                         <span className={`px-2 py-1 text-[10px] font-bold rounded border ${item.status === 'Missing'
-                                                ? 'bg-red-900/40 text-red-500 border-red-500/30'
-                                                : 'bg-green-500/20 text-green-400 border-green-500/30'
+                                            ? 'bg-red-900/40 text-red-500 border-red-500/30'
+                                            : 'bg-green-500/20 text-green-400 border-green-500/30'
                                             }`}>
                                             {item.status}
                                         </span>
                                     </td>
                                     <td className="p-4 text-sm text-gray-400">
-                                        <p>{item.contact}</p>
+                                        <p>{item.informantName}: {item.informantPhone}</p>
                                     </td>
                                     <td className="p-4 text-right">
                                         <button
-                                            onClick={() => handleUpdateStatus(item.id)}
+                                            onClick={() => handleUpdateStatus(item._id)}
                                             className="text-primary text-sm font-bold hover:underline hover:text-white"
                                         >
                                             Update
@@ -73,6 +97,9 @@ const MissingList = () => {
                                     </td>
                                 </tr>
                             ))}
+                            {missingPersons.length === 0 && (
+                                <tr><td colSpan="6" className="p-8 text-center text-gray-500">No missing person records</td></tr>
+                            )}
                         </tbody>
                     </table>
                 </div>

@@ -1,23 +1,46 @@
-import React, { useState } from 'react';
-import { Search, Filter, Phone, MapPin, Shield } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Filter, Phone, MapPin, Shield, Mail, Droplets, X } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import { volunteersAPI } from '../../services/api';
 
-const VolunteerList = () => {
+const VolunteerList = ({ isAdmin = false }) => {
     const { t } = useLanguage();
     const [searchTerm, setSearchTerm] = useState('');
     const [districtFilter, setDistrictFilter] = useState('All');
+    const [volunteers, setVolunteers] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedVolunteer, setSelectedVolunteer] = useState(null);
 
-    // Data copied from VolunteerSignup.jsx as requested
-    const volunteers = [
-        { id: 1, name: "Arjun Narayan", district: "Wayanad", phone: "+91 98765 12345", location: "Meppadi", role: "Medical" },
-        { id: 2, name: "Fatima Hameed", district: "Kozhikode", phone: "+91 99887 66554", location: "Vilangad", role: "Rescue" },
-        { id: 3, name: "John Mathew", district: "Malappuram", phone: "+91 88776 54321", location: "Nilambur", role: "Logistics" },
-        { id: 4, name: "Sreejith K", district: "Wayanad", phone: "+91 77665 43210", location: "Chooralmala", role: "General" },
-        { id: 5, name: "Deepa Thomas", district: "Kannur", phone: "+91 66554 32109", location: "Iritty", role: "Medical" },
-        { id: 6, name: "Rahul Krishna", district: "Wayanad", phone: "+91 98765 00000", location: "Kalpetta", role: "Rescue" },
-    ];
+    useEffect(() => {
+        fetchVolunteers();
+    }, []);
 
-    const districts = ['All', 'Wayanad', 'Kozhikode', 'Malappuram', 'Kannur'];
+    const fetchVolunteers = async () => {
+        try {
+            const res = await volunteersAPI.getAll();
+            setVolunteers(res.data.data);
+        } catch (err) {
+            console.error('Failed to fetch volunteers:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDelete = async (e, id) => {
+        e.stopPropagation(); // prevent opening contact modal if parent is clickable
+        if (window.confirm("Are you sure you want to remove this volunteer?")) {
+            try {
+                await volunteersAPI.delete(id);
+                fetchVolunteers(); // refresh list
+            } catch (err) {
+                console.error("Failed to delete volunteer:", err);
+                alert("Could not delete volunteer.");
+            }
+        }
+    };
+
+    // Extract unique districts from data
+    const districts = ['All', ...new Set(volunteers.map(v => v.district))];
 
     const filteredVolunteers = volunteers.filter(v => {
         const matchesDistrict = districtFilter === 'All' || v.district === districtFilter;
@@ -25,6 +48,10 @@ const VolunteerList = () => {
             v.location.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesDistrict && matchesSearch;
     });
+
+    if (loading) {
+        return <div className="p-6 flex justify-center py-20"><div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div></div>;
+    }
 
     return (
         <div className="p-4 sm:p-6 h-full flex flex-col">
@@ -66,7 +93,7 @@ const VolunteerList = () => {
             {/* List */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 overflow-y-auto custom-scrollbar">
                 {filteredVolunteers.map(v => (
-                    <div key={v.id} className="bg-surface p-5 rounded-2xl border border-white/10 shadow-sm hover:border-neon/30 transition group">
+                    <div key={v._id} className="bg-surface p-5 rounded-2xl border border-white/10 shadow-sm hover:border-neon/30 transition group">
                         <div className="flex justify-between items-start mb-4">
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-full bg-neon/10 flex items-center justify-center text-neon font-bold">
@@ -95,9 +122,20 @@ const VolunteerList = () => {
                         </div>
 
                         <div className="mt-4 pt-4 border-t border-white/10 flex gap-2">
-                            <button className="flex-1 py-2 text-xs font-bold bg-white/5 text-gray-300 rounded-lg hover:bg-white/10 transition border border-white/5">
+                            <button
+                                onClick={() => setSelectedVolunteer(v)}
+                                className="flex-1 py-2 text-xs font-bold bg-white/5 text-gray-300 rounded-lg hover:bg-white/10 transition border border-white/5"
+                            >
                                 {t('contact')}
                             </button>
+                            {isAdmin && (
+                                <button
+                                    onClick={(e) => handleDelete(e, v._id)}
+                                    className="py-2 px-4 text-xs font-bold bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500/20 transition border border-red-500/20"
+                                >
+                                    Delete
+                                </button>
+                            )}
                         </div>
                     </div>
                 ))}
@@ -107,6 +145,72 @@ const VolunteerList = () => {
                 <div className="text-center py-20 bg-surface rounded-2xl border-2 border-dashed border-white/10">
                     <Shield className="w-12 h-12 mx-auto text-gray-500 mb-3" />
                     <p className="text-gray-400 font-medium">{t('noResults')}</p>
+                </div>
+            )}
+
+            {/* Contact Modal */}
+            {selectedVolunteer && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedVolunteer(null)}>
+                    <div
+                        className="bg-surface border border-white/10 p-6 rounded-3xl w-full max-w-md relative animate-fade-in shadow-2xl"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <button
+                            onClick={() => setSelectedVolunteer(null)}
+                            className="absolute top-4 right-4 p-2 text-gray-400 hover:text-white bg-white/5 rounded-full transition hover:bg-white/10"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+
+                        <div className="flex items-center gap-4 mb-6 pt-2">
+                            <div className="w-14 h-14 bg-neon/10 text-neon font-bold text-2xl rounded-full flex items-center justify-center border border-neon/20">
+                                {selectedVolunteer.name ? selectedVolunteer.name.charAt(0).toUpperCase() : 'V'}
+                            </div>
+                            <div>
+                                <h3 className="text-2xl font-bold text-white">{selectedVolunteer.name}</h3>
+                                <p className="text-gray-400 text-sm">
+                                    {selectedVolunteer.role || (selectedVolunteer.skills?.length > 0 ? selectedVolunteer.skills[0] : 'General Rescue')}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div className="bg-black/20 p-4 rounded-xl border border-white/5 flex flex-col gap-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-primary/10 rounded-lg text-primary"><Phone className="w-5 h-5" /></div>
+                                    <div>
+                                        <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Phone</p>
+                                        <p className="text-white font-medium">{selectedVolunteer.phone || 'N/A'}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-neon/10 rounded-lg text-neon"><Mail className="w-5 h-5" /></div>
+                                    <div>
+                                        <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Email</p>
+                                        <p className="text-white font-medium">{selectedVolunteer.email || 'Not provided'}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-red-500/10 rounded-lg text-red-500"><Droplets className="w-5 h-5" /></div>
+                                    <div>
+                                        <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Blood Group</p>
+                                        <p className="text-white font-medium">{selectedVolunteer.bloodGroup || 'N/A'}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500"><MapPin className="w-5 h-5" /></div>
+                                    <div>
+                                        <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Location</p>
+                                        <p className="text-white font-medium">
+                                            {selectedVolunteer.location && selectedVolunteer.district && selectedVolunteer.location !== selectedVolunteer.district
+                                                ? `${selectedVolunteer.location}, ${selectedVolunteer.district}`
+                                                : selectedVolunteer.location || selectedVolunteer.district || 'N/A'}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

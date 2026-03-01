@@ -1,89 +1,47 @@
-import React, { useState } from 'react';
-import { Search, User, X, MapPin, Calendar, AlertCircle, Phone, Plus } from 'lucide-react';
-import { AnimatePresence, motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { Search, User, X, MapPin, Calendar, AlertCircle, Phone, Plus, Loader2 } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
+import { missingPersonsAPI } from '../../services/api';
 
 const MissingPersonSearch = ({ viewOnly = false }) => {
     const { t } = useLanguage();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedPerson, setSelectedPerson] = useState(null);
+    const [persons, setPersons] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    // Realistic Mock Data with High Risk North Kerala Places
-    const missingPersons = [
-        {
-            id: 1,
-            name: "Rajesh Kumar",
-            age: 45,
-            gender: "Male",
-            lastSeen: "Chooralmala, Wayanad",
-            dateMissing: "2024-07-30",
-            status: "Missing",
-            description: "Wearing a blue check shirt and black trousers. Has a scar on left eyebrow.",
-            contact: "+91 98456 12345 (Brother)",
-            photoUrl: null
-        },
-        {
-            id: 2,
-            name: "Priya Lakshmi",
-            age: 28,
-            gender: "Female",
-            lastSeen: "Mundakkai, Wayanad",
-            dateMissing: "2024-07-31",
-            status: "Missing",
-            description: "Red saree, height approx 5'4\". Carrying a small handbag.",
-            contact: "+91 99887 76655 (Husband)",
-            photoUrl: null
-        },
-        {
-            id: 3,
-            name: "Mohammed Faizal",
-            age: 12,
-            gender: "Male",
-            lastSeen: "Vilangad, Kozhikode",
-            dateMissing: "2024-07-30",
-            status: "Missing",
-            description: "School uniform (White shirt, Navy Blue pants).",
-            contact: "+91 77665 54433 (Father)",
-            photoUrl: null
-        },
-        {
-            id: 4,
-            name: "Mary Kutty",
-            age: 65,
-            gender: "Female",
-            lastSeen: "Kavalappara, Malappuram",
-            dateMissing: "2024-08-08",
-            status: "Found",
-            description: "Currently at Nilambur Relief Camp. Safe.",
-            contact: "Camp Admin Office",
-            photoUrl: null
-        },
-        {
-            id: 5,
-            name: "Abhijith Nair",
-            age: 32,
-            gender: "Male",
-            lastSeen: "Iritty, Kannur",
-            dateMissing: "2024-08-01",
-            status: "Missing",
-            description: "Last seen near the bridge. Wearing a yellow rain coat.",
-            contact: "+91 98765 00001 (Uncle)",
-            photoUrl: null
+    useEffect(() => {
+        fetchMissingPersons();
+    }, []);
+
+    const fetchMissingPersons = async () => {
+        setLoading(true);
+        try {
+            const res = await missingPersonsAPI.getAll();
+            setPersons(res.data.data || []);
+        } catch (err) {
+            console.error('Failed to fetch missing persons:', err);
+        } finally {
+            setLoading(false);
         }
-    ];
-
-    const [persons, setPersons] = useState(missingPersons);
+    };
 
     const filteredPersons = persons.filter(person =>
-        person.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        person.lastSeen.toLowerCase().includes(searchTerm.toLowerCase())
+        (person.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (person.lastSeen || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const handleStatusUpdate = (id, newStatus) => {
-        setPersons(persons.map(p => p.id === id ? { ...p, status: newStatus } : p));
-        if (selectedPerson && selectedPerson.id === id) {
-            setSelectedPerson({ ...selectedPerson, status: newStatus });
+    const handleStatusUpdate = async (id, newStatus) => {
+        try {
+            await missingPersonsAPI.update(id, { status: newStatus });
+            setPersons(persons.map(p => p._id === id ? { ...p, status: newStatus } : p));
+            if (selectedPerson && selectedPerson._id === id) {
+                setSelectedPerson({ ...selectedPerson, status: newStatus });
+            }
+        } catch (err) {
+            console.error('Failed to update status:', err);
         }
     };
 
@@ -117,37 +75,50 @@ const MissingPersonSearch = ({ viewOnly = false }) => {
                     </div>
                 </div>
 
-                {/* Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {filteredPersons.map((person) => (
-                        <div key={person.id} className="bg-surface rounded-2xl shadow-sm border border-white/10 overflow-hidden group hover:shadow-lg hover:shadow-primary/10 transition-all duration-300">
-                            <div className="h-48 bg-black/20 flex items-center justify-center relative overflow-hidden">
-                                {person.photoUrl ? (
-                                    <img src={person.photoUrl} alt={person.name} className="w-full h-full object-cover" />
-                                ) : (
-                                    <User className="w-16 h-16 text-gray-600 group-hover:scale-110 group-hover:text-primary transition duration-500" />
-                                )}
-                                <div className={`absolute top-3 right-3 px-2 py-1 text-xs font-bold rounded-lg ${person.status === 'Found' ? 'bg-primary/20 text-primary border border-primary/30' : 'bg-red-500/20 text-red-500 border border-red-500/30'
-                                    }`}>
-                                    {person.status}
+                {/* Loading */}
+                {loading ? (
+                    <div className="flex items-center justify-center py-20">
+                        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                    </div>
+                ) : filteredPersons.length === 0 ? (
+                    <div className="text-center py-16">
+                        <User className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+                        <p className="text-gray-400 text-lg">No missing persons reported</p>
+                        <p className="text-gray-600 text-sm mt-1">Reports will appear here when submitted</p>
+                    </div>
+                ) : (
+                    /* Grid */
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {filteredPersons.map((person) => (
+                            <div key={person._id} className="bg-surface rounded-2xl shadow-sm border border-white/10 overflow-hidden group hover:shadow-lg hover:shadow-primary/10 transition-all duration-300">
+                                <div className="h-48 bg-black/20 flex items-center justify-center relative overflow-hidden">
+                                    {person.photoUrl ? (
+                                        <img src={person.photoUrl} alt={person.name} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <User className="w-16 h-16 text-gray-600 group-hover:scale-110 group-hover:text-primary transition duration-500" />
+                                    )}
+                                    <div className={`absolute top-3 right-3 px-2 py-1 text-xs font-bold rounded-lg ${person.status === 'Found' ? 'bg-primary/20 text-primary border border-primary/30' : 'bg-red-500/20 text-red-500 border border-red-500/30'
+                                        }`}>
+                                        {person.status}
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="p-5">
-                                <h3 className="font-bold text-lg text-white mb-1">{person.name}</h3>
-                                <div className="flex items-center gap-1 text-sm text-gray-400 mb-4">
-                                    <MapPin className="w-3 h-3 text-gray-500" /> {person.lastSeen}
-                                </div>
+                                <div className="p-5">
+                                    <h3 className="font-bold text-lg text-white mb-1">{person.name}</h3>
+                                    <div className="flex items-center gap-1 text-sm text-gray-400 mb-4">
+                                        <MapPin className="w-3 h-3 text-gray-500" /> {person.lastSeen}
+                                    </div>
 
-                                <button
-                                    onClick={() => setSelectedPerson(person)}
-                                    className="w-full py-2 bg-primary/10 text-primary text-sm font-bold rounded-lg hover:bg-primary hover:text-black transition-colors"
-                                >
-                                    {t('viewDetails')}
-                                </button>
+                                    <button
+                                        onClick={() => setSelectedPerson(person)}
+                                        className="w-full py-2 bg-primary/10 text-primary text-sm font-bold rounded-lg hover:bg-primary hover:text-black transition-colors"
+                                    >
+                                        {t('viewDetails')}
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* Detail Modal */}
@@ -187,13 +158,13 @@ const MissingPersonSearch = ({ viewOnly = false }) => {
                                         {!viewOnly ? (
                                             <div className="flex gap-2 mt-3">
                                                 <button
-                                                    onClick={() => handleStatusUpdate(selectedPerson.id, 'Found')}
+                                                    onClick={() => handleStatusUpdate(selectedPerson._id, 'Found')}
                                                     className={`px-3 py-1 rounded-lg text-xs font-bold border transition ${selectedPerson.status === 'Found' ? 'bg-primary text-black border-primary' : 'bg-transparent text-gray-400 border-gray-600 hover:border-primary hover:text-primary'}`}
                                                 >
                                                     {t('missing.markFound')}
                                                 </button>
                                                 <button
-                                                    onClick={() => handleStatusUpdate(selectedPerson.id, 'Missing')}
+                                                    onClick={() => handleStatusUpdate(selectedPerson._id, 'Missing')}
                                                     className={`px-3 py-1 rounded-lg text-xs font-bold border transition ${selectedPerson.status === 'Missing' ? 'bg-red-500 text-white border-red-500' : 'bg-transparent text-gray-400 border-gray-600 hover:border-red-500 hover:text-red-500'}`}
                                                 >
                                                     {t('missing.markMissing')}
@@ -221,7 +192,7 @@ const MissingPersonSearch = ({ viewOnly = false }) => {
                                         <Calendar className="w-5 h-5 text-primary mt-0.5" />
                                         <div>
                                             <p className="text-sm text-gray-400 font-medium">{t('missing.date')}</p>
-                                            <p className="text-white font-medium">{selectedPerson.dateMissing}</p>
+                                            <p className="text-white font-medium">{selectedPerson.dateMissing ? new Date(selectedPerson.dateMissing).toLocaleDateString('en-IN') : 'N/A'}</p>
                                         </div>
                                     </div>
 
@@ -233,7 +204,7 @@ const MissingPersonSearch = ({ viewOnly = false }) => {
                                     <div className="border-t border-white/10 pt-6 mt-6">
                                         <p className="text-sm text-gray-400 font-medium mb-2">{t('contact')}</p>
                                         <div className="flex items-center gap-2 text-primary font-bold text-lg">
-                                            <Phone className="w-5 h-5" /> {selectedPerson.contact}
+                                            <Phone className="w-5 h-5" /> {selectedPerson.contact || selectedPerson.informant || 'N/A'}
                                         </div>
                                     </div>
                                 </div>

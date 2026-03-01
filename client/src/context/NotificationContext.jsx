@@ -38,9 +38,9 @@ export const NotificationProvider = ({ children }) => {
         <NotificationContext.Provider value={{ showNotification }}>
             {children}
             {notification && (
-                <div className="fixed top-6 right-6 z-[100] animate-bounce-in">
+                <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] w-full max-w-md px-4 pointer-events-none animate-bounce-in">
                     <div className={`
-                        border-2 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-start gap-4 max-w-md relative overflow-hidden
+                        pointer-events-auto border text-white px-6 py-4 rounded-xl shadow-2xl flex items-start gap-4 relative overflow-hidden
                         ${notification.type === 'low' ? 'bg-green-600 border-green-400' : ''}
                         ${notification.type === 'medium' ? 'bg-yellow-600 border-yellow-400' : ''}
                         ${notification.type === 'high' ? 'bg-orange-600 border-orange-400' : ''}

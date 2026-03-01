@@ -1,31 +1,57 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, MapPin, Users, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
+import { campsAPI } from '../../services/api';
 
 const CampList = ({ isPublic = false, viewOnly = false, canEdit = false }) => {
     const { t } = useLanguage();
-    const [camps, setCamps] = React.useState([
-        { id: 1, name: "Govt High School Camp 1", location: "Wayanad", capacity: 200, occupied: 150, status: "Active", phone1: "+91 98765 43210", phone2: "+91 98765 43211" },
-        { id: 2, name: "Govt High School Camp 2", location: "Wayanad", capacity: 300, occupied: 280, status: "Active", phone1: "+91 98765 43212", phone2: "+91 98765 43213" },
-        { id: 3, name: "Govt High School Camp 3", location: "Wayanad", capacity: 150, occupied: 45, status: "Active", phone1: "+91 98765 43214", phone2: "+91 98765 43215" },
-    ]);
+    const [camps, setCamps] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [editingCamp, setEditingCamp] = useState(null);
+    const [editForm, setEditForm] = useState({ occupied: 0, capacity: 0 });
 
-    const [editingCamp, setEditingCamp] = React.useState(null);
-    const [editForm, setEditForm] = React.useState({ occupied: 0, capacity: 0 });
+    useEffect(() => {
+        fetchCamps();
+    }, []);
+
+    const fetchCamps = async () => {
+        try {
+            const res = await campsAPI.getAll();
+            setCamps(res.data.data);
+        } catch (err) {
+            console.error('Failed to fetch camps:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const openEditModal = (camp) => {
         setEditingCamp(camp);
         setEditForm({ occupied: camp.occupied, capacity: camp.capacity });
     };
 
-    const handleUpdate = (e) => {
+    const handleUpdate = async (e) => {
         e.preventDefault();
-        setCamps(camps.map(c => c.id === editingCamp.id ? { ...c, ...editForm } : c));
-        setEditingCamp(null);
+        try {
+            await campsAPI.update(editingCamp._id, editForm);
+            setCamps(camps.map(c => c._id === editingCamp._id ? { ...c, ...editForm } : c));
+            setEditingCamp(null);
+        } catch (err) {
+            console.error('Failed to update camp:', err);
+            alert('Failed to update camp. Please try again.');
+        }
     };
 
     const showActions = !isPublic || canEdit;
+
+    if (loading) {
+        return (
+            <div className="p-6 flex justify-center py-20">
+                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="p-4 sm:p-6">
@@ -56,13 +82,13 @@ const CampList = ({ isPublic = false, viewOnly = false, canEdit = false }) => {
                         </thead>
                         <tbody className="divide-y divide-white/10">
                             {camps.map((camp) => (
-                                <tr key={camp.id} className="hover:bg-white/5 transition">
+                                <tr key={camp._id} className="hover:bg-white/5 transition">
                                     <td className="p-4 font-medium text-white text-sm sm:text-base">{camp.name}</td>
                                     <td className="p-4 text-gray-400 text-sm flex items-center gap-1 mt-2 sm:mt-0"><MapPin className="w-4 h-4" /> {camp.location}</td>
                                     <td className="p-4">
                                         <div className="flex flex-col gap-1 text-[10px] sm:text-sm text-gray-400">
                                             <div className="flex items-center gap-1"><Phone className="w-3 h-3" /> {camp.phone1}</div>
-                                            <div className="flex items-center gap-1"><Phone className="w-3 h-3" /> {camp.phone2}</div>
+                                            {camp.phone2 && <div className="flex items-center gap-1"><Phone className="w-3 h-3" /> {camp.phone2}</div>}
                                         </div>
                                     </td>
                                     <td className="p-4">
