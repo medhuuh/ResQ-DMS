@@ -46,8 +46,8 @@ router.get('/:id', async (req, res, next) => {
 
 // @route   POST /api/safe-homes
 // @desc    Create a safe home
-// @access  Private (Admin, Host)
-router.post('/', protect, authorize('admin', 'host'), async (req, res, next) => {
+// @access  Private (Admin, Host, Volunteer)
+router.post('/', protect, authorize('admin', 'host', 'volunteer'), async (req, res, next) => {
     try {
         req.body.ownerId = req.user.id;
 
@@ -70,8 +70,8 @@ router.post('/', protect, authorize('admin', 'host'), async (req, res, next) => 
 
 // @route   PUT /api/safe-homes/:id
 // @desc    Update a safe home
-// @access  Private (Admin, Host - owner only)
-router.put('/:id', protect, authorize('admin', 'host'), async (req, res, next) => {
+// @access  Private (Admin, Volunteer, Host - owner only)
+router.put('/:id', protect, authorize('admin', 'host', 'volunteer'), async (req, res, next) => {
     try {
         let home = await SafeHome.findById(req.params.id);
         if (!home) {
@@ -106,8 +106,8 @@ router.put('/:id', protect, authorize('admin', 'host'), async (req, res, next) =
 
 // @route   DELETE /api/safe-homes/:id
 // @desc    Delete a safe home
-// @access  Private (Admin, Host - owner only)
-router.delete('/:id', protect, authorize('admin', 'host'), async (req, res, next) => {
+// @access  Private (Admin, Volunteer, Host - owner only)
+router.delete('/:id', protect, authorize('admin', 'host', 'volunteer'), async (req, res, next) => {
     try {
         const home = await SafeHome.findById(req.params.id);
         if (!home) {

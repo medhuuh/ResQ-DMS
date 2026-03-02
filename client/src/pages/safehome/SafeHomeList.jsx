@@ -64,7 +64,7 @@ const SafeHomeList = () => {
                     <h2 className="text-2xl sm:text-3xl font-bold text-white">My Safe Homes</h2>
                     <p className="text-gray-400 text-sm">Manage your listed properties</p>
                 </div>
-                <Link to="/admin/safe-homes/new" className="w-full sm:w-auto px-4 py-2 bg-primary text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-lime-700 transition shadow-lg shadow-lime-500/30 text-sm">
+                <Link to="new" className="w-full sm:w-auto px-4 py-2 bg-primary text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-lime-700 transition shadow-lg shadow-lime-500/30 text-sm">
                     <Plus className="w-5 h-5" /> List New Home
                 </Link>
             </div>

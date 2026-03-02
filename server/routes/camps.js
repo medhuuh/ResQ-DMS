@@ -100,8 +100,8 @@ router.put('/:id', protect, authorize('admin', 'volunteer'), async (req, res, ne
 
 // @route   DELETE /api/camps/:id
 // @desc    Delete a camp
-// @access  Private (Admin)
-router.delete('/:id', protect, authorize('admin'), async (req, res, next) => {
+// @access  Private (Admin, Volunteer)
+router.delete('/:id', protect, authorize('admin', 'volunteer'), async (req, res, next) => {
     try {
         const camp = await Camp.findById(req.params.id);
         if (!camp) {

@@ -64,11 +64,11 @@ function App() {
                     <Route index element={<VolunteerList />} />
                     <Route path="alerts" element={<DisasterAlerts isPublic={true} />} />
                     <Route path="map" element={<RiskZoneMap isPublic={true} />} />
-                    <Route path="camps" element={<CampList isPublic={true} canEdit={true} />} />
+                    <Route path="camps" element={<CampList />} />
                     <Route path="camps/new" element={<CampForm />} />
-                    <Route path="safe-homes" element={<SafeHomeSearch canEdit={true} />} />
+                    <Route path="safe-homes" element={<SafeHomeList />} />
                     <Route path="safe-homes/new" element={<SafeHomeForm />} />
-                    <Route path="missing" element={<MissingPersonSearch />} />
+                    <Route path="missing" element={<MissingList />} />
                     <Route path="missing/new" element={<MissingRegister />} />
                   </Route>
 

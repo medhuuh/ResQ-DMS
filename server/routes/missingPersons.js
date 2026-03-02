@@ -51,7 +51,12 @@ router.post('/', protect, upload.single('photo'), async (req, res, next) => {
 
         // If a photo was uploaded, store the path
         if (req.file) {
-            req.body.photo = `/uploads/${req.file.filename}`;
+            // Cloudinary returns the full URL in req.file.path
+            if (req.file.path && req.file.path.startsWith('http')) {
+                req.body.photo = req.file.path;
+            } else {
+                req.body.photo = `/uploads/${req.file.filename}`;
+            }
         }
 
         const person = await MissingPerson.create(req.body);
@@ -63,8 +68,8 @@ router.post('/', protect, upload.single('photo'), async (req, res, next) => {
 
 // @route   PUT /api/missing-persons/:id
 // @desc    Update missing person (status, details)
-// @access  Private (Admin)
-router.put('/:id', protect, authorize('admin'), async (req, res, next) => {
+// @access  Private (Admin, Volunteer)
+router.put('/:id', protect, authorize('admin', 'volunteer'), async (req, res, next) => {
     try {
         let person = await MissingPerson.findById(req.params.id);
         if (!person) {
@@ -84,8 +89,8 @@ router.put('/:id', protect, authorize('admin'), async (req, res, next) => {
 
 // @route   DELETE /api/missing-persons/:id
 // @desc    Delete a missing person record
-// @access  Private (Admin)
-router.delete('/:id', protect, authorize('admin'), async (req, res, next) => {
+// @access  Private (Admin, Volunteer)
+router.delete('/:id', protect, authorize('admin', 'volunteer'), async (req, res, next) => {
     try {
         const person = await MissingPerson.findById(req.params.id);
         if (!person) {

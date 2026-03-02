@@ -43,6 +43,17 @@ const CampList = ({ isPublic = false, viewOnly = false, canEdit = false }) => {
         }
     };
 
+    const handleDelete = async (id) => {
+        if (!window.confirm('Are you sure you want to delete this camp?')) return;
+        try {
+            await campsAPI.delete(id);
+            setCamps(camps.filter(c => c._id !== id));
+        } catch (err) {
+            console.error('Failed to delete camp:', err);
+            alert('Failed to delete camp.');
+        }
+    };
+
     const showActions = !isPublic || canEdit;
 
     if (loading) {
@@ -107,12 +118,18 @@ const CampList = ({ isPublic = false, viewOnly = false, canEdit = false }) => {
                                         <span className="px-2 py-0.5 bg-green-500/20 text-green-400 border border-green-500/30 text-[10px] font-bold rounded-lg">{camp.status}</span>
                                     </td>
                                     {showActions && (
-                                        <td className="p-4 text-right">
+                                        <td className="p-4 text-right flex justify-end gap-3 flex-wrap">
                                             <button
                                                 onClick={() => openEditModal(camp)}
                                                 className="text-primary font-bold text-sm hover:underline hover:text-white"
                                             >
                                                 {t('manage')}
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(camp._id)}
+                                                className="text-red-500 font-bold text-sm hover:underline hover:text-white"
+                                            >
+                                                {t('delete') || 'Delete'}
                                             </button>
                                         </td>
                                     )}

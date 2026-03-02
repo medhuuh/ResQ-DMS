@@ -92,8 +92,8 @@ const MissingPersonSearch = ({ viewOnly = false }) => {
                         {filteredPersons.map((person) => (
                             <div key={person._id} className="bg-surface rounded-2xl shadow-sm border border-white/10 overflow-hidden group hover:shadow-lg hover:shadow-primary/10 transition-all duration-300">
                                 <div className="h-48 bg-black/20 flex items-center justify-center relative overflow-hidden">
-                                    {person.photoUrl ? (
-                                        <img src={person.photoUrl} alt={person.name} className="w-full h-full object-cover" />
+                                    {person.photo ? (
+                                        <img src={person.photo.startsWith('http') ? person.photo : `http://localhost:5000${person.photo}`} alt={person.name} className="w-full h-full object-cover" />
                                     ) : (
                                         <User className="w-16 h-16 text-gray-600 group-hover:scale-110 group-hover:text-primary transition duration-500" />
                                     )}

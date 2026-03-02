@@ -37,7 +37,7 @@ const VolunteerSignup = () => {
         : volunteers.filter(v => (v.district || '').toLowerCase() === districtFilter.toLowerCase());
 
     return (
-        <div className="pt-24 min-h-screen bg-background pb-12 px-6">
+        <div className="pt-24 min-h-screen bg-background pb-12 px-4 sm:px-6">
             <div className="max-w-6xl mx-auto">
                 <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
                     <div>
@@ -56,17 +56,8 @@ const VolunteerSignup = () => {
                 </div>
 
                 {showForm ? (
-                    <div className="animate-fade-in">
-                        <button
-                            onClick={() => { setShowForm(false); fetchVolunteers(); }}
-                            className="mb-6 text-gray-400 hover:text-white flex items-center gap-2"
-                        >
-                            ← Back to Directory
-                        </button>
-                        <div className="max-w-4xl mx-auto bg-surface p-8 rounded-3xl border border-white/10">
-                            <h2 className="text-2xl font-bold text-white mb-6 text-center">Register as Volunteer</h2>
-                            <VolunteerForm />
-                        </div>
+                    <div className="animate-fade-in w-full max-w-4xl mx-auto">
+                        <VolunteerForm onCancel={() => { setShowForm(false); fetchVolunteers(); }} />
                     </div>
                 ) : (
                     <div className="animate-fade-in">

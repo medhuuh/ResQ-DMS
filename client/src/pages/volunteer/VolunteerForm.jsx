@@ -5,9 +5,17 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 import { volunteersAPI } from '../../services/api';
 
-const VolunteerForm = () => {
+const VolunteerForm = ({ onCancel }) => {
     const navigate = useNavigate();
     const [saving, setSaving] = useState(false);
+
+    const handleCancel = () => {
+        if (onCancel) {
+            onCancel();
+        } else {
+            navigate(-1);
+        }
+    };
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState('');
     const [formData, setFormData] = useState({
@@ -49,7 +57,7 @@ const VolunteerForm = () => {
             } else {
                 setSuccess(true);
                 setTimeout(() => {
-                    navigate(-1);
+                    handleCancel();
                 }, 3000);
             }
         } catch (err) {
@@ -78,7 +86,7 @@ const VolunteerForm = () => {
     return (
         <div className="p-4 sm:p-6">
             <div className="max-w-2xl mx-auto bg-surface rounded-2xl shadow-sm border border-white/10 p-5 sm:p-8 relative">
-                <button onClick={() => navigate(-1)} className="absolute top-4 right-4 p-2 bg-black/20 text-gray-400 hover:text-white rounded-lg hover:bg-white/10 transition">
+                <button onClick={handleCancel} className="absolute top-4 right-4 p-2 bg-black/20 text-gray-400 hover:text-white rounded-lg hover:bg-white/10 transition">
                     <X className="w-5 h-5" />
                 </button>
 
@@ -171,7 +179,7 @@ const VolunteerForm = () => {
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                        <button type="button" onClick={() => navigate(-1)} className="w-full sm:flex-1 py-3 bg-black/20 text-gray-300 font-bold rounded-xl hover:bg-white/10 transition border border-white/10 text-sm">
+                        <button type="button" onClick={handleCancel} className="w-full sm:flex-1 py-3 bg-black/20 text-gray-300 font-bold rounded-xl hover:bg-white/10 transition border border-white/10 text-sm">
                             Cancel
                         </button>
                         <button type="submit" disabled={saving} className="w-full sm:flex-1 py-3 bg-neon text-black font-bold rounded-xl hover:bg-green-400 transition shadow-lg shadow-green-500/30 flex items-center justify-center gap-2 text-sm disabled:opacity-50">
