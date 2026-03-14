@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, User, X, MapPin, Calendar, AlertCircle, Phone, Plus, Loader2 } from 'lucide-react';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { missingPersonsAPI } from '../../services/api';
@@ -148,8 +148,16 @@ const MissingPersonSearch = ({ viewOnly = false }) => {
 
                             <div className="p-4 sm:p-8 overflow-y-auto max-h-[85vh]">
                                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 text-center sm:text-left">
-                                    <div className="w-24 h-24 bg-black/20 rounded-2xl flex items-center justify-center flex-shrink-0">
-                                        <User className="w-10 h-10 text-gray-500" />
+                                    <div className="w-24 h-24 bg-black/20 rounded-2xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                        {selectedPerson.photo ? (
+                                            <img
+                                                src={selectedPerson.photo.startsWith('http') ? selectedPerson.photo : `http://localhost:5000${selectedPerson.photo}`}
+                                                alt={selectedPerson.name}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <User className="w-10 h-10 text-gray-500" />
+                                        )}
                                     </div>
                                     <div className="w-full">
                                         <h2 className="text-2xl font-bold text-white">{selectedPerson.name}</h2>
@@ -184,7 +192,7 @@ const MissingPersonSearch = ({ viewOnly = false }) => {
                                         <MapPin className="w-5 h-5 text-primary mt-0.5" />
                                         <div>
                                             <p className="text-sm text-gray-400 font-medium">{t('location')}</p>
-                                            <p className="text-white font-medium">{selectedPerson.lastSeen}</p>
+                                            <p className="text-white font-medium">{selectedPerson.lastSeenLocation}</p>
                                         </div>
                                     </div>
 
@@ -203,8 +211,13 @@ const MissingPersonSearch = ({ viewOnly = false }) => {
 
                                     <div className="border-t border-white/10 pt-6 mt-6">
                                         <p className="text-sm text-gray-400 font-medium mb-2">{t('contact')}</p>
-                                        <div className="flex items-center gap-2 text-primary font-bold text-lg">
-                                            <Phone className="w-5 h-5" /> {selectedPerson.contact || selectedPerson.informant || 'N/A'}
+                                        <div className="flex flex-col gap-1">
+                                            <div className="flex items-center gap-2 text-primary font-bold text-lg">
+                                                <Phone className="w-5 h-5" /> {selectedPerson.informantName || 'N/A'}
+                                            </div>
+                                            {selectedPerson.informantPhone && (
+                                                <p className="text-gray-400 text-sm">{selectedPerson.informantPhone}</p>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
