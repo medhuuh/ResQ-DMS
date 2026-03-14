@@ -222,19 +222,21 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                 </>
                             )}
 
-                            {/* Logout - Always visible */}
-                            <button
-                                onClick={handleLogout}
-                                className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl flex flex-col items-center justify-center gap-2 sm:gap-3 transition-all border ${theme === 'dark'
-                                    ? 'bg-red-500/10 border-red-500/20 hover:bg-red-500/20 text-red-400'
-                                    : 'bg-red-50 border-red-200 hover:bg-red-100 text-red-600'
-                                    }`}
-                            >
-                                <div className={`p-2 sm:p-3 rounded-full ${theme === 'dark' ? 'bg-red-500/20' : 'bg-red-100'}`}>
-                                    <LogOut className="w-5 h-5 sm:w-6 sm:h-6" />
-                                </div>
-                                <span className="font-medium text-xs sm:text-sm">{t('logout')}</span>
-                            </button>
+                            {/* Logout - Only visible for admin and volunteers */}
+                            {(location.pathname.startsWith('/admin') || location.pathname.startsWith('/volunteer')) && (
+                                <button
+                                    onClick={handleLogout}
+                                    className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl flex flex-col items-center justify-center gap-2 sm:gap-3 transition-all border ${theme === 'dark'
+                                        ? 'bg-red-500/10 border-red-500/20 hover:bg-red-500/20 text-red-400'
+                                        : 'bg-red-50 border-red-200 hover:bg-red-100 text-red-600'
+                                        }`}
+                                >
+                                    <div className={`p-2 sm:p-3 rounded-full ${theme === 'dark' ? 'bg-red-500/20' : 'bg-red-100'}`}>
+                                        <LogOut className="w-5 h-5 sm:w-6 sm:h-6" />
+                                    </div>
+                                    <span className="font-medium text-xs sm:text-sm">{t('logout')}</span>
+                                </button>
+                            )}
                         </div>
 
                         <div className={`mt-6 sm:mt-8 text-center text-[10px] sm:text-xs ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
