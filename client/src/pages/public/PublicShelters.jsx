@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import CampList from '../camp/CampList';
-import SafeHomeSearch from './SafeHomeSearch'; // Reusing search for view
-import { Tent, ShieldCheck } from 'lucide-react';
+import SafeHomeSearch from './SafeHomeSearch';
+import { Tent, ShieldCheck, Home, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const PublicShelters = () => {
     const [activeTab, setActiveTab] = useState('camps');
@@ -44,8 +45,24 @@ const PublicShelters = () => {
                         <CampList isPublic={true} viewOnly={true} />
                     ) : (
                         <div className="p-4">
-                            {/* Manually rendering SafeHomeSearch content or using it but hiding add button via props if supported */}
-                            {/* Since SafeHomeSearch has internal header with Add button, we might need to modify it to accept viewOnly */}
+                            {/* CTA Banner for registering a safe home */}
+                            <div className="mb-6 bg-gradient-to-r from-primary/20 to-lime-600/10 border border-primary/30 rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3 bg-primary/20 rounded-xl">
+                                        <Home className="w-6 h-6 text-primary" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold text-white text-sm sm:text-base">Have a safe space to offer?</h3>
+                                        <p className="text-gray-400 text-xs sm:text-sm">Register your home as a temporary shelter for disaster victims</p>
+                                    </div>
+                                </div>
+                                <Link
+                                    to="/safe-homes/register"
+                                    className="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 bg-primary text-black font-bold rounded-xl hover:bg-lime-400 transition shadow-lg shadow-lime-500/20 text-sm"
+                                >
+                                    Register Your Home <ArrowRight className="w-4 h-4" />
+                                </Link>
+                            </div>
                             <SafeHomeSearch viewOnly={true} />
                         </div>
                     )}

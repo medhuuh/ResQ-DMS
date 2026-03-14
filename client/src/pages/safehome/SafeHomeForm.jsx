@@ -93,14 +93,22 @@ const SafeHomeForm = () => {
                         </div>
                         <div>
                             <label className="block text-xs sm:text-sm font-medium text-gray-400 mb-1">Phone Number</label>
-                            <input type="tel" name="phone" value={formData.phone} onChange={handleChange} className="w-full px-4 py-2 bg-black/20 border border-white/10 text-white rounded-xl focus:ring-2 focus:ring-primary outline-none text-sm" placeholder="+91..." required />
+                            <input type="tel" name="phone" value={formData.phone} onChange={handleChange}
+                                inputMode="numeric"
+                                pattern="[0-9+\s\-]{7,15}"
+                                title="Phone number should contain only digits"
+                                className="w-full px-4 py-2 bg-black/20 border border-white/10 text-white rounded-xl focus:ring-2 focus:ring-primary outline-none text-sm" placeholder="+91..." required />
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-xs sm:text-sm font-medium text-gray-400 mb-1">Capacity (People)</label>
-                            <input type="number" name="capacity" value={formData.capacity} onChange={handleChange} className="w-full px-4 py-2 bg-black/20 border border-white/10 text-white rounded-xl focus:ring-2 focus:ring-primary outline-none text-sm" placeholder="Max capacity" required />
+                            <input type="number" name="capacity" value={formData.capacity} onChange={handleChange}
+                                min="1"
+                                inputMode="numeric"
+                                onKeyDown={(e) => { if (['e','E','+','-','.'].includes(e.key)) e.preventDefault(); }}
+                                className="w-full px-4 py-2 bg-black/20 border border-white/10 text-white rounded-xl focus:ring-2 focus:ring-primary outline-none text-sm" placeholder="Max capacity" required />
                         </div>
                         <div>
                             <label className="block text-xs sm:text-sm font-medium text-gray-400 mb-1">Location / Area</label>

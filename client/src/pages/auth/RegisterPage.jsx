@@ -26,6 +26,18 @@ const RegisterPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+
+        // Email must contain .com
+        if (!formData.email.toLowerCase().includes('.com')) {
+            setError('Please enter a valid email address (must include .com)');
+            return;
+        }
+        // Phone must be digits only (if provided)
+        if (formData.phone && !/^[0-9+\s\-]{7,15}$/.test(formData.phone)) {
+            setError('Phone number must contain only digits (7–15 digits)');
+            return;
+        }
+
         setLoading(true);
 
         const result = await register({ ...formData, role });

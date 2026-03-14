@@ -99,7 +99,11 @@ const MissingRegister = () => {
                         <h4 className="font-bold text-white text-xs sm:text-sm mb-3">{t('form.informant')}</h4>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <input type="text" name="informantName" value={formData.informantName} onChange={handleChange} className="w-full px-4 py-2 bg-black/20 border border-white/10 text-white rounded-xl focus:ring-2 focus:ring-primary outline-none text-sm" placeholder={t('name')} />
-                            <input type="tel" name="informantPhone" value={formData.informantPhone} onChange={handleChange} className="w-full px-4 py-2 bg-black/20 border border-white/10 text-white rounded-xl focus:ring-2 focus:ring-primary outline-none text-sm" placeholder={t('phone')} />
+                            <input type="tel" name="informantPhone" value={formData.informantPhone} onChange={handleChange}
+                                inputMode="numeric"
+                                pattern="[0-9+\s\-]{7,15}"
+                                title="Phone number should contain only digits"
+                                className="w-full px-4 py-2 bg-black/20 border border-white/10 text-white rounded-xl focus:ring-2 focus:ring-primary outline-none text-sm" placeholder={t('phone')} />
                         </div>
                     </div>
 

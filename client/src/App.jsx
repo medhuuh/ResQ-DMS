@@ -54,6 +54,7 @@ function App() {
                     <Route path="missing-public" element={<MissingPersonSearch viewOnly={true} />} />
                     <Route path="volunteer-signup" element={<VolunteerSignup />} />
                     <Route path="donate" element={<DonationPledge />} />
+                    <Route path="safe-homes/register" element={<SafeHomeForm />} />
                     <Route path="login" element={<LoginPage />} />
                     <Route path="register" element={<RegisterPage />} />
                     <Route path="forgot-password" element={<ForgotPassword />} />
