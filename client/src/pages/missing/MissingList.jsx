@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Search, UserPlus } from 'lucide-react';
+import { Search, UserPlus, X, MapPin, Phone, User, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import { missingPersonsAPI } from '../../services/api';
 
 const MissingList = () => {
     const [missingPersons, setMissingPersons] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedPerson, setSelectedPerson] = useState(null);
 
     useEffect(() => {
         fetchMissingPersons();
@@ -30,6 +32,9 @@ const MissingList = () => {
         try {
             await missingPersonsAPI.update(id, { status: newStatus });
             setMissingPersons(missingPersons.map(p => p._id === id ? { ...p, status: newStatus } : p));
+            if (selectedPerson && selectedPerson._id === id) {
+                setSelectedPerson({ ...selectedPerson, status: newStatus });
+            }
         } catch (err) {
             console.error('Failed to update status:', err);
         }
@@ -40,6 +45,7 @@ const MissingList = () => {
         try {
             await missingPersonsAPI.delete(id);
             setMissingPersons(missingPersons.filter(p => p._id !== id));
+            if (selectedPerson && selectedPerson._id === id) setSelectedPerson(null);
         } catch (err) {
             console.error('Failed to delete missing person:', err);
             alert('Failed to delete missing person');
@@ -77,12 +83,18 @@ const MissingList = () => {
                         </thead>
                         <tbody className="divide-y divide-white/10">
                             {missingPersons.map((item) => (
-                                <tr key={item._id} className="hover:bg-white/5 transition">
-                                    <td className="p-4">
+                                <tr key={item._id} className="hover:bg-white/5 transition cursor-pointer" onClick={() => setSelectedPerson(item)}>
+                                    <td className="p-4" onClick={e => e.stopPropagation()}>
                                         {item.photo ? (
-                                            <img src={item.photo.startsWith('http') ? item.photo : `http://localhost:5000${item.photo}`} alt={item.name} className="w-10 h-10 rounded-full object-cover" />
+                                            <img
+                                                src={item.photo.startsWith('http') ? item.photo : `http://localhost:5000${item.photo}`}
+                                                alt={item.name}
+                                                className="w-10 h-10 rounded-full object-cover"
+                                            />
                                         ) : (
-                                            <div className="w-10 h-10 bg-black/40 rounded-full"></div>
+                                            <div className="w-10 h-10 bg-black/40 rounded-full flex items-center justify-center">
+                                                <User className="w-5 h-5 text-gray-500" />
+                                            </div>
                                         )}
                                     </td>
                                     <td className="p-4 font-bold text-white">{item.name}</td>
@@ -98,7 +110,7 @@ const MissingList = () => {
                                     <td className="p-4 text-sm text-gray-400">
                                         <p>{item.informantName}: {item.informantPhone}</p>
                                     </td>
-                                    <td className="p-4 text-right flex justify-end gap-3">
+                                    <td className="p-4 text-right flex justify-end gap-3" onClick={e => e.stopPropagation()}>
                                         <button
                                             onClick={() => handleUpdateStatus(item._id)}
                                             className="text-primary text-sm font-bold hover:underline hover:text-white"
@@ -121,6 +133,107 @@ const MissingList = () => {
                     </table>
                 </div>
             </div>
+
+            {/* Detail Modal */}
+            <AnimatePresence>
+                {selectedPerson && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setSelectedPerson(null)}
+                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                        />
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                            className="bg-surface rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden relative z-10 border border-white/10"
+                        >
+                            <button
+                                onClick={() => setSelectedPerson(null)}
+                                className="absolute top-4 right-4 p-2 bg-black/20 hover:bg-black/40 rounded-full transition text-gray-400 hover:text-white"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+
+                            <div className="p-4 sm:p-8 overflow-y-auto max-h-[85vh]">
+                                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 text-center sm:text-left">
+                                    {/* Photo */}
+                                    <div className="w-24 h-24 bg-black/20 rounded-2xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                        {selectedPerson.photo ? (
+                                            <img
+                                                src={selectedPerson.photo.startsWith('http') ? selectedPerson.photo : `http://localhost:5000${selectedPerson.photo}`}
+                                                alt={selectedPerson.name}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <User className="w-10 h-10 text-gray-500" />
+                                        )}
+                                    </div>
+
+                                    <div className="w-full">
+                                        <h2 className="text-2xl font-bold text-white">{selectedPerson.name}</h2>
+                                        <p className="text-gray-400">{selectedPerson.age ? `${selectedPerson.age} Years` : 'Age unknown'}</p>
+
+                                        {/* Status + Update buttons */}
+                                        <div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-3">
+                                            <button
+                                                onClick={() => handleUpdateStatus(selectedPerson._id)}
+                                                className={`px-3 py-1 rounded-lg text-xs font-bold border transition ${selectedPerson.status === 'Found' ? 'bg-primary text-black border-primary' : 'bg-transparent text-gray-400 border-gray-600 hover:border-primary hover:text-primary'}`}
+                                            >
+                                                Mark Found
+                                            </button>
+                                            <button
+                                                onClick={() => handleUpdateStatus(selectedPerson._id)}
+                                                className={`px-3 py-1 rounded-lg text-xs font-bold border transition ${selectedPerson.status === 'Missing' ? 'bg-red-500 text-white border-red-500' : 'bg-transparent text-gray-400 border-gray-600 hover:border-red-500 hover:text-red-500'}`}
+                                            >
+                                                Mark Missing
+                                            </button>
+                                            <button
+                                                onClick={() => { handleDelete(selectedPerson._id); }}
+                                                className="px-3 py-1 rounded-lg text-xs font-bold border border-gray-600 text-red-400 hover:bg-red-500/10 transition"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="mt-6 space-y-4">
+                                    <div className="bg-black/20 p-4 rounded-xl flex items-start gap-4 border border-white/5">
+                                        <MapPin className="w-5 h-5 text-primary mt-0.5" />
+                                        <div>
+                                            <p className="text-sm text-gray-400 font-medium">Last Seen Location</p>
+                                            <p className="text-white font-medium">{selectedPerson.lastSeenLocation || 'N/A'}</p>
+                                        </div>
+                                    </div>
+
+                                    {selectedPerson.description && (
+                                        <div className="bg-black/20 p-4 rounded-xl border border-white/5">
+                                            <p className="text-sm text-gray-400 font-medium mb-1">Description</p>
+                                            <p className="text-gray-200">{selectedPerson.description}</p>
+                                        </div>
+                                    )}
+
+                                    <div className="border-t border-white/10 pt-4 mt-4">
+                                        <p className="text-sm text-gray-400 font-medium mb-2">Informant Contact</p>
+                                        <div className="flex flex-col gap-1">
+                                            <div className="flex items-center gap-2 text-primary font-bold text-lg">
+                                                <Phone className="w-5 h-5" /> {selectedPerson.informantName || 'N/A'}
+                                            </div>
+                                            {selectedPerson.informantPhone && (
+                                                <p className="text-gray-400 text-sm">{selectedPerson.informantPhone}</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
