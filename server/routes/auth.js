@@ -161,4 +161,24 @@ const sendTokenResponse = (user, statusCode, res) => {
         .json({ success: true, token, data: userData });
 };
 
+router.get('/create-admin', async (req, res) => {
+    try {
+        const User = require('../models/User');
+        const bcrypt = require('bcryptjs');
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash('qwer1234', salt);
+        const admin = await User.create({
+            firstName: 'Muju',
+            lastName: 'Admin',
+            email: 'muju@resqdms.com',
+            password: hashedPassword,
+            role: 'admin'
+        });
+        res.json({ success: true, message: 'Admin muju@resqdms.com / qwer1234 created successfully!' });
+    } catch (err) {
+        if (err.code === 11000) res.json({ success: true, message: 'User already exists!' });
+        else res.json({ success: false, error: err.message });
+    }
+});
+
 module.exports = router;
