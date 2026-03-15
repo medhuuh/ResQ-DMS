@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, UserPlus, X, MapPin, Phone, User, AlertCircle } from 'lucide-react';
+import { Search, UserPlus, X, MapPin, Phone, User, AlertCircle, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { missingPersonsAPI } from '../../services/api';
@@ -78,7 +78,7 @@ const MissingList = () => {
                                 <th className="p-4">Last Seen</th>
                                 <th className="p-4">Status</th>
                                 <th className="p-4">Contact</th>
-                                <th className="p-4 text-right">Actions</th>
+                                <th className="p-4">Date Missing</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/10">
@@ -110,19 +110,10 @@ const MissingList = () => {
                                     <td className="p-4 text-sm text-gray-400">
                                         <p>{item.informantName}: {item.informantPhone}</p>
                                     </td>
-                                    <td className="p-4 text-right flex justify-end gap-3" onClick={e => e.stopPropagation()}>
-                                        <button
-                                            onClick={() => handleUpdateStatus(item._id)}
-                                            className="text-primary text-sm font-bold hover:underline hover:text-white"
-                                        >
-                                            Update
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(item._id)}
-                                            className="text-red-500 text-sm font-bold hover:underline hover:text-white"
-                                        >
-                                            Delete
-                                        </button>
+                                    <td className="p-4 text-sm text-gray-400">
+                                        {item.dateMissing
+                                            ? new Date(item.dateMissing).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+                                            : <span className="text-gray-600 italic text-xs">Not recorded</span>}
                                     </td>
                                 </tr>
                             ))}
@@ -207,6 +198,18 @@ const MissingList = () => {
                                         <div>
                                             <p className="text-sm text-gray-400 font-medium">Last Seen Location</p>
                                             <p className="text-white font-medium">{selectedPerson.lastSeenLocation || 'N/A'}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-black/20 p-4 rounded-xl flex items-start gap-4 border border-white/5">
+                                        <Calendar className="w-5 h-5 text-primary mt-0.5" />
+                                        <div>
+                                            <p className="text-sm text-gray-400 font-medium">Date Went Missing</p>
+                                            <p className="text-white font-medium">
+                                                {selectedPerson.dateMissing
+                                                    ? new Date(selectedPerson.dateMissing).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
+                                                    : 'Not recorded'}
+                                            </p>
                                         </div>
                                     </div>
 

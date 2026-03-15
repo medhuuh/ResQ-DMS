@@ -35,6 +35,10 @@ const MissingPersonSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
+    dateMissing: {
+        type: Date,
+        default: null
+    },
     reportedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'

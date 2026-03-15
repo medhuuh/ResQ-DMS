@@ -13,6 +13,7 @@ const MissingRegister = () => {
     const [formData, setFormData] = useState({
         name: '',
         age: '',
+        dateMissing: '',
         lastSeenLocation: '',
         description: '',
         informantName: '',
@@ -86,9 +87,15 @@ const MissingRegister = () => {
                         </div>
                     </div>
 
-                    <div>
-                        <label className="block text-xs sm:text-sm font-medium text-gray-400 mb-1">{t('lastSeen')}</label>
-                        <input type="text" name="lastSeenLocation" value={formData.lastSeenLocation} onChange={handleChange} className="w-full px-4 py-2 bg-black/20 border border-white/10 text-white rounded-xl focus:ring-2 focus:ring-primary outline-none text-sm" placeholder={t('form.addressLandmark')} required />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-xs sm:text-sm font-medium text-gray-400 mb-1">{t('lastSeen')}</label>
+                            <input type="text" name="lastSeenLocation" value={formData.lastSeenLocation} onChange={handleChange} className="w-full px-4 py-2 bg-black/20 border border-white/10 text-white rounded-xl focus:ring-2 focus:ring-primary outline-none text-sm" placeholder={t('form.addressLandmark')} required />
+                        </div>
+                        <div>
+                            <label className="block text-xs sm:text-sm font-medium text-gray-400 mb-1">Date Went Missing</label>
+                            <input type="date" name="dateMissing" value={formData.dateMissing} onChange={handleChange} max={new Date().toISOString().split('T')[0]} className="w-full px-4 py-2 bg-black/20 border border-white/10 text-white rounded-xl focus:ring-2 focus:ring-primary outline-none text-sm" />
+                        </div>
                     </div>
                     <div>
                         <label className="block text-xs sm:text-sm font-medium text-gray-400 mb-1">{t('missing.description')}</label>
