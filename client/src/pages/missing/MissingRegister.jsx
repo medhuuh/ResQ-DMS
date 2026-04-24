@@ -42,7 +42,13 @@ const MissingRegister = () => {
             });
             if (photo) data.append('photo', photo);
 
-            await missingPersonsAPI.report(data);
+            const response = await missingPersonsAPI.report(data);
+            
+            // Check if the backend successfully saved the date
+            if (formData.dateMissing && !response.data.data.dateMissing) {
+                alert("⚠️ WARNING: The date was NOT saved! Your backend server is still running the old code. Please go to your backend terminal, press Ctrl+C to stop it, and restart it so it can read the new database rules.");
+            }
+
             navigate(-1);
         } catch (err) {
             console.error('Failed to report missing person:', err);

@@ -5,10 +5,8 @@ dotenv.config();
 const User = require('./models/User');
 const Camp = require('./models/Camp');
 const SafeHome = require('./models/SafeHome');
-const Refugee = require('./models/Refugee');
 const MissingPerson = require('./models/MissingPerson');
 const Volunteer = require('./models/Volunteer');
-const Donation = require('./models/Donation');
 
 const clearAll = async () => {
     try {
@@ -18,10 +16,8 @@ const clearAll = async () => {
         await User.deleteMany();
         await Camp.deleteMany();
         await SafeHome.deleteMany();
-        await Refugee.deleteMany();
         await MissingPerson.deleteMany();
         await Volunteer.deleteMany();
-        await Donation.deleteMany();
 
         console.log('✅ All data cleared from all collections!');
         console.log('   You can now add your own data via the app or API.');

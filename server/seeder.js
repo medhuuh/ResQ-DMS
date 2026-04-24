@@ -9,10 +9,8 @@ dotenv.config();
 const User = require('./models/User');
 const Camp = require('./models/Camp');
 const SafeHome = require('./models/SafeHome');
-const Refugee = require('./models/Refugee');
 const MissingPerson = require('./models/MissingPerson');
 const Volunteer = require('./models/Volunteer');
-const Donation = require('./models/Donation');
 
 const seedData = async () => {
     try {
@@ -23,10 +21,8 @@ const seedData = async () => {
         await User.deleteMany();
         await Camp.deleteMany();
         await SafeHome.deleteMany();
-        await Refugee.deleteMany();
         await MissingPerson.deleteMany();
         await Volunteer.deleteMany();
-        await Donation.deleteMany();
         console.log('Existing data cleared');
 
         // ====== USERS ======
@@ -144,41 +140,6 @@ const seedData = async () => {
         ]);
         console.log('✅ Safe Homes seeded');
 
-        // ====== REFUGEES ======
-        await Refugee.insertMany([
-            {
-                fullName: 'Arun Krishnan',
-                age: 34,
-                gender: 'Male',
-                district: 'Wayanad',
-                healthStatus: 'Stable',
-                assignedCamp: camps[0]._id,
-                status: 'Safe',
-                registeredBy: adminUser._id
-            },
-            {
-                fullName: 'Lakshmi Devi',
-                age: 28,
-                gender: 'Female',
-                district: 'Idukki',
-                healthStatus: 'Requires diabetes medication',
-                assignedCamp: camps[0]._id,
-                status: 'Medical Needs',
-                registeredBy: adminUser._id
-            },
-            {
-                fullName: 'Thomas George',
-                age: 45,
-                gender: 'Male',
-                district: 'Ernakulam',
-                healthStatus: 'Stable',
-                assignedCamp: camps[1]._id,
-                status: 'Safe',
-                registeredBy: adminUser._id
-            }
-        ]);
-        console.log('✅ Refugees seeded');
-
         // ====== MISSING PERSONS ======
         await MissingPerson.insertMany([
             {
@@ -224,14 +185,6 @@ const seedData = async () => {
             { name: 'Rahul Krishna', age: 29, phone: '+91 98765 00000', bloodGroup: 'A+', expertise: 'General Rescue', district: 'Wayanad', location: 'Kalpetta', role: 'Rescue' }
         ]);
         console.log('✅ Volunteers seeded');
-
-        // ====== DONATIONS ======
-        await Donation.insertMany([
-            { type: 'items', category: 'Food & Water', quantity: '50 packets', pickupAddress: 'MG Road, Kalpetta', donorName: 'Local NGO', donorPhone: '+91 98765 44444', status: 'Pledged' },
-            { type: 'items', category: 'Clothing', quantity: '100 pieces', pickupAddress: 'Church Road, Ernakulam', donorName: 'Parish Group', donorPhone: '+91 98765 55555', status: 'Collected' },
-            { type: 'items', category: 'Medicines', quantity: '20 kits', pickupAddress: 'Hospital Road, Kozhikode', donorName: 'Medical Trust', donorPhone: '+91 98765 66666', status: 'Pledged' }
-        ]);
-        console.log('✅ Donations seeded');
 
         console.log('\n🎉 All data seeded successfully!');
         console.log('\n📋 Login Credentials:');

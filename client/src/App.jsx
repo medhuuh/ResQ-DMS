@@ -19,8 +19,6 @@ import CampForm from './pages/camp/CampForm';
 import CampOccupancy from './pages/camp/CampOccupancy';
 import SafeHomeList from './pages/safehome/SafeHomeList';
 import SafeHomeForm from './pages/safehome/SafeHomeForm';
-import RefugeeList from './pages/refugee/RefugeeList';
-import RefugeeRegister from './pages/refugee/RefugeeRegister';
 import DonationPledge from './pages/resource/DonationPledge';
 import MissingList from './pages/missing/MissingList';
 import MissingRegister from './pages/missing/MissingRegister';

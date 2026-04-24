@@ -65,13 +65,9 @@ export const safeHomesAPI = {
 };
 
 // ======== REFUGEES API ========
-export const refugeesAPI = {
-    getAll: (params) => api.get('/refugees', { params }),
-    getOne: (id) => api.get(`/refugees/${id}`),
-    create: (data) => api.post('/refugees', data),
-    update: (id, data) => api.put(`/refugees/${id}`, data),
-    delete: (id) => api.delete(`/refugees/${id}`)
-};
+// Removed
+
+
 
 // ======== MISSING PERSONS API ========
 export const missingPersonsAPI = {
@@ -94,11 +90,9 @@ export const volunteersAPI = {
 };
 
 // ======== DONATIONS API ========
-export const donationsAPI = {
-    getAll: (params) => api.get('/donations', { params }),
-    create: (data) => api.post('/donations', data),
-    update: (id, data) => api.put(`/donations/${id}`, data)
-};
+// Removed
+
+
 
 // ======== DASHBOARD API ========
 export const dashboardAPI = {
